@@ -1,0 +1,133 @@
+    QREGISTER sip:registrar.claseTelefonia.com SIP/2.0
+Via: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678
+Max-Forwards: 70
+From: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772
+To: "Thomas" <sip:elProfe@claseTelefonia.com>
+Call-ID: a84b4c76e66710@127.0.1.1
+CSeq: 1 REGISTER
+Contact: "Thomas" <sip:elProfe@127.0.1.1>
+Expires: 3600
+Content-Length: 0
+REGISTER sip:registrar.claseTelefonia.com SIP/2.0
+Via: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678
+Max-Forwards: 70
+From: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772
+To: "Thomas" <sip:elProfe@claseTelefonia.com>
+Call-ID: a84b4c76e66710@127.0.1.1
+CSeq: 1 REGISTER
+Contact: "Thomas" <sip:elProfe@127.0.1.1>
+Expires: 3600
+Content-Length: 0
+
+
+
+ejueje
+ejjejrjrjeyrhrfjue
+REGISTER sip:registrar.claseTelefonia.com SIP/2.0
+Via: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678
+Max-Forwards: 70
+From: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772
+To: "Thomas" <sip:elProfe@claseTelefonia.com>
+Call-ID: a84b4c76e66710@127.0.1.1
+CSeq: 1 REGISTER
+Contact: "Thomas" <sip:elProfe@127.0.1.1>
+Expires: 3600
+Content-Length: 0
+ 
+ 
+ jfjf jfjfc
+nxkfkf
+ fjjfjf
+ hfjje
+jejjfje jfje
+REGISTER sip:registrar.claseTelefonia.com SIP/2.0
+Via: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678
+Max-Forwards: 70
+From: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772
+To: "Thomas" <sip:elProfe@claseTelefonia.com>
+Call-ID: a84b4c76e66710@127.0.1.1
+CSeq: 1 REGISTER
+Contact: "Thomas" <sip:elProfe@127.0.1.1>
+Expires: 3600
+Content-Length: 0
+REGISTER sip:10.252.63.127 SIP/2.0
+Via: SIP/2.0/TCP 10.252.62.84:5060;branch=z9hG4bK776asdhds
+Max-Forwards: 7
+To: <sip:thomas@10.252.63.127>
+From: <sip:thomas@10.252.63.127>;tag=1928301774
+Call-ID: 2d2f7e29-bd3a-45fc-8aab-a0f36b2c4536
+CSeq: 255553 REGISTER
+Contact: <sip:user@10.252.62.84>
+Content-Length: 0
+
+INVITE sip:{marco@um.edu.uy} SIP/2.0
+Via: SIP/2.0/TCP 10.252.62.84:5060;branch=z9hG4bK776asdhds
+Max-Forwards: 70
+To: <sip:{marco@um.edu.uy}>
+From: <sip:thomas@um.edu.uy>;tag=1928301774
+Call-ID: 36f0493a-19ae-4134-bce0-e6a1d9dbf2b1
+CSeq: 558920 INVITE
+Contact: <sip:user@10.252.62.84>
+Content-Length: 5
+
+ABC
+INVITE sip:{marco@um.edu.uy} SIP/2.0
+Via: SIP/2.0/TCP 10.252.62.84:5060;branch=z9hG4bK776asdhds
+Max-Forwards: 70
+To: <sip:{marco@um.edu.uy}>
+From: <sip:thomas@um.edu.uy>;tag=1928301774
+Call-ID: 73c52429-a5b3-4bf8-aeac-81879c14fc5a
+CSeq: 973105 INVITE
+Contact: <sip:user@10.252.62.84>
+Content-Length: 5
+
+ABCDE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NVITE sip:bob@biloxi.com SIP/2.0
+ia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK7
+asdhds
+Max-Forwards: 70
+To: Bob <sip:bob@bilo
+.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710@pc33.atlanta.com
+CSeq: 314159 INVITE
+Contact: <sip:alice@pc33.atlanta.com>
+Content-Type: application/sdp
+Content-Length: 1
+
+
+
+
+
+
+
+
+
+
+NVITE sip:bob@biloxi.com SIP/2.0
+Via:
+IP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds
+Max-Forwards: 70
+To: Bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710@pc33.atlanta.com
+CSeq: 314159 INVITE
+Contact: <sip:alice@pc33.atlanta.com>
+Content-Type: application/sdp
+Content-Length: 1
