@@ -26,9 +26,9 @@ while True:
     
     client_socket, addr = server_socket.accept()
     print(f"Got a connection from {addr}")
-    # LOCATION_SERVICE[client_socket] = {
-    #     'Address' : addr
-    # }
+    LOCATION_SERVICE[client_socket] = {
+        'Address' : addr
+    }
     
     # Send a thank you message to the client
     # message = 'Thank you for connecting\nClose socket connection with "Q"\n'
@@ -45,20 +45,19 @@ while True:
         # print(f"> {msg}")
 
         with open('log.txt', 'a') as log_file:
-            log_file.write(msg + '\n')
+            log_file.write(msg + '\n\n')
 
         if msg == "Q":
             print("salir")
             client_socket.close()
             break
 
-
         try:
             data = decode(msg)
 
             # print(data)
 
-            if not check_fields(data):
+            if not check_fields(data["Fields"]):
                 print('fields error')
                 client_socket.send('fields error!!'.encode('ascii'))
                 continue
