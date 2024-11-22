@@ -1,20 +1,22 @@
 # import re
 
-# msg = 'REGISTER sip:registrar.claseTelefonia.com SIP/2.0\r\nVia: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678\r\nMax-Forwards: 70\r\nFrom: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772\r\nTo: "Thomas" <sip:elProfe@claseTelefonia.com>\r\nCall-ID: a84b4c76e66710@127.0.1.1\r\nCSeq: 1 REGISTER\r\nContact: "Thomas" <sip:elProfe@127.0.1.1>\r\nExpires: 3600\r\nContent-Length: 0\r\n\r\n'
-
 
 def decode(msg):
-    data = {}
+    data = {
+                "Request" : {},
+                "Fields" : {}
+            }
     
     # for line in re.split(r'[\r\n]', msg):
-    for l in msg.split('\r\n'): # CAMBIAR POR '\r\n'
+    for l in msg.split('\r\n'):
         for line in l.split('\n'):
 
             key_value = line.split(': ')
+            
             if len(key_value) == 1 and key_value[0] != '':
                 data["Request"] = request_decode(key_value[0])
             if len(key_value) > 1:
-                data[key_value[0]] = key_value[1]
+                data["Fields"][key_value[0]] = key_value[1]
 
             # print(line)
     # print('decoding ok')
@@ -23,6 +25,27 @@ def decode(msg):
     # print("head >", head)
     # for d in data:
     #     print(d, ">", data[d])
+
+def encode(data):
+
+    msg = ""
+
+    request = data["Request"]
+
+    if request["Method"] == "Response":
+        msg += 'SIP/2.0' + ' ' + request["Response Code"] + ' ' + request["Response Description"] + '\n'
+    else:
+        msg += request["Method"] + ' ' + request["uri"] + ' ' + 'SIP/2.0' + '\n'
+    
+    for key in data["Fields"]:
+        msg += key + ': ' + data["Fields"][key] + '\n'
+
+    msg = msg[:-1]
+    msg += '\r\n'
+
+    return msg
+
+
 
 def check_fields(data):
     keys = data.keys()
@@ -33,7 +56,10 @@ def request_decode(req):
     request = {}
 
     if r[0] == 'SIP/2.0':
-        request["Method"] = "response"
+        request["Method"] = "Response"
+        request["Response Code"] = r[1]
+        request["Response Description"] = r[2]
+
     else:
         request["Method"] = r[0]
         request["uri"] = r[1]
@@ -41,11 +67,16 @@ def request_decode(req):
     return request
                 
 
+# msg = 'REGISTER sip:bob@biloxi.com SIP/2.0\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:alice@pc33.atlanta.com>\nContent-Type: application/sdp\nContent-Length: 142\r\n'
 
+# msg = 'REGISTER sip:registrar.claseTelefonia.com SIP/2.0\r\nVia: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678\r\nMax-Forwards: 70\r\nFrom: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772\r\nTo: "Thomas" <sip:elProfe@claseTelefonia.com>\r\nCall-ID: a84b4c76e66710@127.0.1.1\r\nCSeq: 1 REGISTER\r\nContact: "Thomas" <sip:elProfe@127.0.1.1>\r\nExpires: 3600\r\nContent-Length: 0\r\n\r\n'
 
-# data = decode(msg)
-# for d in data:
-#     print(d, ">", data[d])
+msg = 'SIP/2.0 200 OK\nVia: SIP/2.0/UDP server10.biloxi.com;branch=z9hG4bKnashds8;received=192.0.2.3\nTo: Bob <sip:bob@biloxi.com>;tag=a6c85cf\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:bob@192.0.2.4>\nContent-Type: application/sdp\nContent-Length: 131'
 
-# print(check_fields(data))
+import json
+
+data = decode(msg)
+print(json.dumps(data, indent=4))
+print(encode(data))
+print(msg)
     

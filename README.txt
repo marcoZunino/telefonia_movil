@@ -1,3 +1,50 @@
+Request:
+
+{
+    Request :
+        {
+            Method : REGISTER/INVITE/ACK/CANCEL/BYE
+            uri :
+        }
+    Fields : {}
+}
+
+
+Response:
+
+{
+    Request :
+        {
+            Method : "response"
+            Response Code : 100/180/200
+            Response Description : Trying/Ringing/OK
+        }
+    
+    Fields : {}
+}
+
+
+Fields:
+
+{
+    Via : 
+    Max-Forwards :
+    To :
+    From :
+    Call-ID :
+    CSeq :
+    [Contact : ]
+    [Content-Type : ]
+    [Content-Length : ]
+}
+
+
+
+
+
+
+
+
 Puerto server 5060
 
 UDP / TCP

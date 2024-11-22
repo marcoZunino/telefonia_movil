@@ -26,13 +26,13 @@ while True:
     
     client_socket, addr = server_socket.accept()
     print(f"Got a connection from {addr}")
-    LOCATION_SERVICE[client_socket] = {
-        'Address' : addr
-    }
+    # LOCATION_SERVICE[client_socket] = {
+    #     'Address' : addr
+    # }
     
     # Send a thank you message to the client
-    message = 'Thank you for connecting\nClose socket connection with "Q"\n'
-    client_socket.send(message.encode('ascii'))
+    # message = 'Thank you for connecting\nClose socket connection with "Q"\n'
+    # client_socket.send(message.encode('ascii'))
 
     while True:
         # Receive data from the client
@@ -42,7 +42,7 @@ while True:
             continue
         
         msg = rx.decode('utf-8')[:-2]
-        print(f"> {msg}")
+        # print(f"> {msg}")
 
         with open('log.txt', 'a') as log_file:
             log_file.write(msg + '\n')
