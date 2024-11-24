@@ -1,5 +1,5 @@
 import socket
-from functions import decode, check_fields
+from functions import decode, check_fields, add_received_IP
 from methods import methods
 
 # Create a socket object
@@ -19,33 +19,28 @@ ip_address = socket.gethostbyname(host)
 
 print(f"Server listening on {host} {ip_address} : {port}")
 
-LOCATION_SERVICE = {}
+# LOCATION_SERVICE = {}
 
 while True:
     # Establish a connection
     
     client_socket, addr = server_socket.accept()
     print(f"Got a connection from {addr}")
-    LOCATION_SERVICE[client_socket] = {
-        'Address' : addr
-    }
-    
-    # Send a thank you message to the client
-    # message = 'Thank you for connecting\nClose socket connection with "Q"\n'
-    # client_socket.send(message.encode('ascii'))
+    # LOCATION_SERVICE[client_socket] = {
+    #     'Address' : addr
+    # }
 
     while True:
         # Receive data from the client
         rx = client_socket.recv(1024)
 
         if not rx:
-            continue
+            continue # esperar mensajes
         
-        msg = rx.decode('utf-8')[:-2]
-        # print(f"> {msg}")
+        msg = rx.decode('utf-8')[:-2]   # decodificar y quitar \r\n
 
         with open('log.txt', 'a') as log_file:
-            log_file.write(msg + '\n\n')
+            log_file.write(msg + '\n\n')    # guardar mensaje en log
 
         if msg == "Q":
             print("salir")
@@ -53,16 +48,16 @@ while True:
             break
 
         try:
-            data = decode(msg)
+            data = decode(msg)  # decodificar mensaje
 
-            # print(data)
+            add_received_IP(data, addr[0]) # agregar IP de origen
 
             if not check_fields(data["Fields"]):
                 print('fields error')
-                client_socket.send('fields error!!'.encode('ascii'))
+                client_socket.send('fields error!!'.encode('ascii')) 
                 continue
             
-            client_socket.send("fields check ok!".encode('ascii'))
+            # client_socket.send("fields check ok!".encode('ascii'))
 
             methods[data["Request"]["Method"]](client_socket, data) # llamar funcion segun metodo
 
