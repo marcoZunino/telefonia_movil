@@ -1,9 +1,22 @@
-from send import send_message
+from functions.send import send_message
+from functions.read_write import add_user_to_sip_file
 
+location_service = "databases/location_service.txt"
 
 def register(client_socket, data):
     data_fields = data["Fields"]
     print("register...", data_fields["From"])
+
+    try:
+        contact = data_fields["Contact"]
+    except:
+        contact = data_fields["Via"]
+        try:
+            contact += ';received = ' + data_fields["Via"]["received"]
+        except:
+            pass
+    
+    add_user_to_sip_file(location_service, data_fields["Via"]["uri"], contact)
 
     print("sending response", data_fields["Via"]["received"])
 
@@ -14,7 +27,7 @@ def register(client_socket, data):
     # except:
     #     send_message(data_fields["Via"]["received"], 8000, message)
 
-    send_message(data_fields["Via"]["received"], 8000, message)
+    send_message(data_fields["Via"]["received"], 5060, message)
 
 
     # wait 200 OK or timer
@@ -46,3 +59,4 @@ methods["ACK"] = ack
 methods["CANCEL"] = cancel
 methods["BYE"] = bye
 methods["Response"] = response
+

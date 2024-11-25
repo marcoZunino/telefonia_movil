@@ -19,5 +19,3 @@ def send_message(host, port, message):
     finally:
         # Close the socket connection
         client_socket.close()
-
-

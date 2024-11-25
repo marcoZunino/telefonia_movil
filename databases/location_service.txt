@@ -1,0 +1,35 @@
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600
+
+[User]
+URI: bobspc.biloxi.com:5060
+Contact: <sip:bob@192.0.2.4>
+Expires: 3600

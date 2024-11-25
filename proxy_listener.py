@@ -1,6 +1,10 @@
 import socket
-from functions import decode, check_fields, add_received_IP
-from methods import methods
+from functions.codec import decode, check_fields, add_received_IP
+from functions.methods import methods
+from functions.read_write import update_log
+
+log = 'databases/log.txt'
+location_service = 'databases/location_service.txt'
 
 # Create a socket object
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -37,10 +41,11 @@ while True:
         if not rx:
             continue # esperar mensajes
         
-        msg = rx.decode('utf-8')[:-2]   # decodificar y quitar \r\n
+        msg = rx.decode('utf-8')
+        # [:-2]   # decodificar y quitar \r\n
 
-        with open('log.txt', 'a') as log_file:
-            log_file.write(msg + '\n\n')    # guardar mensaje en log
+        update_log(log, msg) # actualizar log
+        # print(msg)
 
         if msg == "Q":
             print("salir")
@@ -60,9 +65,11 @@ while True:
             # client_socket.send("fields check ok!".encode('ascii'))
 
             methods[data["Request"]["Method"]](client_socket, data) # llamar funcion segun metodo
+            break
 
-        except:
-            pass
+        except Exception as e:
+            print("Error: ", e)
+            break
         # if msg == "SIP INVITE":
         #     trying = True
         #     # print("SIP INVITE")
@@ -74,8 +81,6 @@ while True:
             #     trying = False
             #     print("SIP PRACK")
     
-
     
     client_socket.close()   
     # Close the connection with the client
-
