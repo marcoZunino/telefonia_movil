@@ -40,7 +40,6 @@ def add_received_IP(data, address):
 
     data["Fields"]["Via"]["received"] = address
 
-
 def encode(data):
 
     msg = ""
@@ -73,11 +72,12 @@ def encode(data):
 
     return msg
 
-
-
 def check_fields(data):
-    keys = data.keys()
-    return 'Via' in keys and 'Max-Forwards' in keys and 'From' in keys and 'To' in keys and 'Call-ID' in keys and 'CSeq' in keys
+    keys = data["Fields"].keys()
+    if data["Request"]["Method"] == "Response":
+        return 'Via' in keys and 'From' in keys and 'To' in keys and 'Call-ID' in keys and 'CSeq' in keys
+    else:
+        return 'Via' in keys and 'Max-Forwards' in keys and 'From' in keys and 'To' in keys and 'Call-ID' in keys and 'CSeq' in keys
 
 def request_decode(req):
     r = req.split(' ')
@@ -102,11 +102,19 @@ def request_decode(req):
 # msg = 'SIP/2.0 200 OK\nVia: SIP/2.0/UDP server10.biloxi.com;branch=z9hG4bKnashds8;received=192.0.2.3\nTo: Bob <sip:bob@biloxi.com>;tag=a6c85cf\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:bob@192.0.2.4>\nContent-Type: application/sdp\nContent-Length: 131\r\n'
 
 # msg = "INVITE sip:bob@biloxi.com SIP/2.0\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nMax-Forwards: 70\nContact: <sip:alice@pc33.atlanta.com>\nContent-Type: application/pkcs7-mime; smime-type=enveloped-data;name=smime.p7m\nContent-Disposition: attachment; filename=smime.p7m;handling=required\r\n"
+
+
+# msg = "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8;received=192.0.2.1\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContent-Length: 0"
+
+
 # import json
 
+
 # data = decode(msg)
+# # print(json.dumps(data, indent=4))
+# print(check_fields(data))
 # add_received_IP(data, "192.168.0.207")
-# print(json.dumps(data, indent=4))
+
 # print(encode(data))
 # print(msg)
     

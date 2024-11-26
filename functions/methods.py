@@ -35,7 +35,17 @@ def register(client_socket, data):
 def invite(client_socket, data):
     data_fields = data["Fields"]
     print("invite...", data_fields["From"], 'to', data_fields["To"])
-    client_socket.send('100 Trying OK'.encode('ascii'))
+    
+    print("sending response", data_fields["Via"]["received"])
+
+    message = 'SIP/2.0 100 Trying\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8;\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContent-Length: 0\r\n'
+
+    # try:
+    #     client_socket.send(message.encode('utf-8'))
+    # except:
+    #     send_message(data_fields["Via"]["received"], 8000, message)
+
+    send_message(data_fields["Via"]["received"], 5060, message)
 
 
 def ack(client_socket, data):

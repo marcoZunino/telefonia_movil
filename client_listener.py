@@ -2,9 +2,8 @@ import socket
 from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import methods
 from functions.read_write import update_log
-from functions.send import send_message
 
-log = 'databases/log.txt'
+log = 'databases/log_client.txt'
 
 # Create a socket object
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,8 +17,6 @@ server_socket.bind((host, port))
 
 # Start listening for incoming connections
 server_socket.listen(5)
-
-proxy = ("", 8000)
 
 ip_address = socket.gethostbyname(host)
 
@@ -54,7 +51,7 @@ while True:
 
             add_received_IP(data, addr[0]) # agregar IP de origen
 
-            if not check_fields(data["Fields"]):
+            if not check_fields(data):
                 print('fields error')
                 client_socket.send('fields error!!'.encode('ascii')) 
                 continue
@@ -64,18 +61,9 @@ while True:
             methods[data["Request"]["Method"]](client_socket, data) # llamar funcion segun metodo
             break
 
-        except:
-            pass
-        # if msg == "SIP INVITE":
-        #     trying = True
-        #     # print("SIP INVITE")
-        #     message = '> SIP 100 Trying\n'
-        #     client_socket.send(message.encode('ascii'))
-        
-        # if trying:
-            # if msg == "SIP PRACK":
-            #     trying = False
-            #     print("SIP PRACK")
+        except Exception as e:
+            print("Error: ", e)
+            break
     
     
     client_socket.close()   

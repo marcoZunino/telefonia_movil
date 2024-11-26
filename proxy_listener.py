@@ -3,7 +3,7 @@ from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import methods
 from functions.read_write import update_log
 
-log = 'databases/log.txt'
+log = 'databases/log_proxy.txt'
 location_service = 'databases/location_service.txt'
 
 # Create a socket object
@@ -57,7 +57,7 @@ while True:
 
             add_received_IP(data, addr[0]) # agregar IP de origen
 
-            if not check_fields(data["Fields"]):
+            if not check_fields(data):
                 print('fields error')
                 client_socket.send('fields error!!'.encode('ascii')) 
                 continue
