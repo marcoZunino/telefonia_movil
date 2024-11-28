@@ -12,11 +12,18 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host = socket.gethostname()
 port = 5060
 
-# Bind the socket to the port
-server_socket.bind((host, port))
+socket_ready = False
+while not socket_ready:
+    try:
+        # Bind the socket to the port
+        server_socket.bind((host, port))
+        # Start listening for incoming connections
+        server_socket.listen(5)
 
-# Start listening for incoming connections
-server_socket.listen(5)
+        socket_ready = True
+    except:
+        port += 1
+
 
 ip_address = socket.gethostbyname(host)
 

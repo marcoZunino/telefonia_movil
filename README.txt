@@ -1,3 +1,31 @@
+----- SCRIPTS ------
+
+ejecutar como > python .\[script].py
+
+-> proxy_listener
+    iniciar socket para proxy
+    (puerto 8000 por defecto)
+
+-> client_listener
+    iniciar socket para proxy
+    (puerto 5060 por defecto)
+
+-> client_interface
+    interfaz para envio de requests (register/invite)
+    permite configurar datos de usuario y proxy asociado
+
+>>> ejecutar los tres scripts al mismo tiempo en terminales distintas
+
+-> functions
+    '-> codec: codificar y decodificar mensajes, chequeo de campos
+    '-> methods: funciones para callbacks de requests (register/invite/responses...)
+    '-> read_write: manejo de archivos de logs, LS, DNS
+    '-> send: envio de requests
+
+
+
+----- ESTRUCTURA DE MENSAJES -----
+
 Request:
 
 {
@@ -6,7 +34,7 @@ Request:
             Method : REGISTER/INVITE/ACK/CANCEL/BYE
             uri :
         }
-    Fields : {}
+    Fields : {} *
 }
 
 
@@ -20,15 +48,15 @@ Response:
             Response Description : Trying/Ringing/OK
         }
     
-    Fields : {}
+    Fields : {} *
 }
 
 
-Fields:
+* Fields:
 
 {
-    Via : 
-    Max-Forwards :
+    Via : {protocol, uri, [received], ...}
+    Max-Forwards : (no aplica para responses?)
     To :
     From :
     Call-ID :
@@ -39,7 +67,7 @@ Fields:
 }
 
 
-
+----------------------------
 
 
 
@@ -49,57 +77,7 @@ Puerto server 5060
 
 UDP / TCP
 
-\\\\\\\\\\\\\\\\\\\\\\\||||||||||||///////////////////////////
- >->->->->->->->->->->-> USAR UDP <-<-<-<-<-<-<-<-<-<-<-<-<-<
-///////////////////////||||||||||||\\\\\\\\\\\\\\\\\\\\\\\\\\\
-
-send methods
-
 
 Location Service
 
 
-
-
-
----------------------------------
-b'REGISTER sip:registrar.claseTelefonia.com SIP/2.0\r\nVia: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678\r\nMax-Forwards: 70\r\nFrom: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772\r\nTo: "Thomas" <sip:elProfe@claseTelefonia.com>\r\nCall-ID: a84b4c76e66710@127.0.1.1\r\nCSeq: 1 REGISTER\r\nContact: "Thomas" <sip:elProfe@127.0.1.1>\r\nExpires: 3600\r\nContent-Length: 0\r\n\r\n'
-
-REGISTER sip:registrar.claseTelefonia.com SIP/2.0
-Via: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678
-Max-Forwards: 70
-From: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772
-To: "Thomas" <sip:elProfe@claseTelefonia.com>
-Call-ID: a84b4c76e66710@127.0.1.1
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-Expires: 3600
-Content-Length: 0
-
-
-
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-Expires: 3600
-
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-CSeq: 1 REGISTER
-
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-CSeq: 1 REGISTER
-
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-CSeq: 1 REGISTER
-CSeq: 1 REGISTER
-CSeq: 1 REGISTER
-Contact: "Thomas" <sip:elProfe@127.0.1.1>
-Expires: 3600
-Content-Length: 0
