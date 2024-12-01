@@ -55,7 +55,7 @@ Response:
 * Fields:
 
 {
-    Via : {protocol, uri, [received], ...}
+    Via : {protocol, uri, [received], [branch], ...}
     Max-Forwards : (no aplica para responses?)
     To :
     From :

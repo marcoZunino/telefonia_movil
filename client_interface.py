@@ -46,11 +46,12 @@ while True:
             except:
                 port = 8000
 
+            proxy = (ip, port)
+
             name = input("Please enter the proxy name: ")
             if not name:
                 continue
 
-            proxy = (ip, port)
             proxy_name = name
         
         case 'user':

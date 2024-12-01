@@ -1,3 +1,13 @@
+import psycopg2
+
+dns_params = {
+        'dbname': 'sip_proxy_dns',
+        'user': 'postgres',
+        'password': 'postgres',
+        'host': '192.168.1.7',
+        'port': '5434'
+    }
+
 
 def add_user_to_sip_file(location_service, uri, contact, expires=3600):
 
@@ -89,7 +99,67 @@ def update_log(log_file, msg):
         log_file.write(msg + '\n\n')    # guardar mensaje en log
 
 
+
+
+def add_proxy_entry(name, ip, listener_port):
+    # Database connection parameters
+
+    connection = None
+    cursor = None
+    
+    try:
+        # Connect to the database
+        connection = psycopg2.connect(**dns_params)
+        connection.set_client_encoding('UTF8')
+        cursor = connection.cursor()
+
+        # SQL query to insert a new row
+        insert_query = '''
+        INSERT INTO public.proxy (name, ip, listener_port)
+        VALUES (%s, %s, %s);
+        '''
+
+        # Execute the query
+        cursor.execute(insert_query, (name.encode('utf-8'), ip.encode('utf-8'), listener_port))
+
+        # Commit the transaction
+        connection.commit()
+        print("Entry added successfully")
+
+    except Exception as error:
+        print("Failed to insert record into the proxy table", error)
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+
+
+
 # add_user_to_sip_file('databases/location_service.txt', 'alice.atlanta.com:5060', '<sip:abc@127.0.0.1>', expires = 1000)
 # add_user_to_sip_file('databases/location_service.txt', 'bob.biloxi.com:5060', '<sip:abc@192.168.0.1>')
 # add_user_to_sip_file('databases/location_service.txt', 'alice.atlanta.com:5060', '<sip:abc@192.168.0.1>')
 # modify_user_in_sip_file('databases/location_service.txt', 'alice.atlanta.com:5060', {"Contact" : "<sip:abc@192.168.0.1>", "Expires" : 3000})
+
+
+# import requests
+
+# # URL of the remote file
+# url = 'https://drive.google.com/file/d/1gkzzGppYdSMRfRILeSY-xBOLWRB1FFiF/view?usp=drive_link'
+
+# # Fetch the content of the remote file
+# response = requests.get(url)
+
+# # Check if the request was successful
+# if response.status_code == 200:
+#     # Get the content of the file
+#     file_content = response.text
+    
+#     # Process the content as needed
+#     print(file_content)
+# else:
+#     print(f"Failed to fetch the file. Status code: {response.status_code}")
