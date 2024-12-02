@@ -1,7 +1,7 @@
 import socket
 from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import methods
-from functions.read_write import update_log
+from functions.read_write import add_dns_entry, update_log
 
 log = 'databases/log_proxy.txt'
 location_service = 'databases/location_service.txt'
@@ -12,6 +12,8 @@ server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # Get local machine name
 host = socket.gethostname()
 port = 8000
+
+proxy_name = input("Please enter the proxy name: ")
 
 socket_ready = False
 while not socket_ready:
@@ -28,7 +30,14 @@ while not socket_ready:
 
 ip_address = socket.gethostbyname(host)
 
-print(f"Server listening on {host} {ip_address} : {port}")
+print(f"Proxy {proxy_name} listening on {host} {ip_address} : {port}")
+add_dns_entry(proxy_name, ip_address, port)
+
+proxy_data = {
+    'name': proxy_name,
+    'ip': ip_address,
+    'port': port
+}
 
 # LOCATION_SERVICE = {}
 
@@ -51,7 +60,7 @@ while True:
         msg = rx.decode('utf-8')
         # [:-2]   # decodificar y quitar \r\n
 
-        update_log(log, msg) # actualizar log
+        update_log('databases/log_proxy_' + proxy_name + '.txt', msg) # actualizar log
         # print(msg)
 
         if msg == "Q":
@@ -71,7 +80,7 @@ while True:
             
             # client_socket.send("fields check ok!".encode('ascii'))
 
-            methods[data["Request"]["Method"]](client_socket, data) # llamar funcion segun metodo
+            methods[data["Request"]["Method"]](proxy_data, data) # llamar funcion segun metodo
             break
 
         except Exception as e:

@@ -106,14 +106,21 @@ def request_decode(req):
 
 # msg = "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8;received=192.0.2.1\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContent-Length: 0"
 
+# msg = "SIP/2.0 200 OK\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8\nTo: Bob <sip:bob@claro.uy>\nFrom: Bob <sip:bob@claro.uy>;tag=456248\nCall-ID: 843817637684230@998sdasdh09\nCSeq: 1826 REGISTER\nContent-Length: 0"
 
 # import json
 
 
 # data = decode(msg)
-# # print(json.dumps(data, indent=4))
-# print(check_fields(data))
-# add_received_IP(data, "192.168.0.207")
+
+
+# print(json.dumps(data, indent=4))
+# print(data["Request"]["uri"].split('@')[1])
+# uri = data["Request"]["uri"].split('@')[0]
+# data["Request"]["uri"] = uri + '@' + '192.168.1.18'
+# print(json.dumps(data, indent=4))
+
+
 
 # print(encode(data))
 # print(msg)

@@ -4,7 +4,7 @@ dns_params = {
         'dbname': 'sip_proxy_dns',
         'user': 'postgres',
         'password': 'postgres',
-        'host': '192.168.1.7',
+        'host': 'localhost',
         'port': '5434'
     }
 
@@ -73,7 +73,7 @@ def modify_user_in_sip_file(location_service, uri, new_params):
                                     
                 file.write(line)
 
-def query_location_service(file_path, uri):
+def query_location_service(file_path, uri=None, username=None):
 
     with open(file_path, 'r') as file:
         user_info = {}
@@ -81,16 +81,26 @@ def query_location_service(file_path, uri):
 
         for line in file:
             
-            if line.strip().startswith("URI:") and uri in line:
-                user_found = True
+            if line.strip().startswith("URI:"):
                 user_info['URI'] = line.split("URI:")[1].strip()
-
-            elif user_found and line.strip().startswith("Contact:"):
+                if uri and uri == user_info['URI']:
+                    user_found = True
+            
+            elif line.strip().startswith("Contact:"):
                 user_info['Contact'] = line.split("Contact:")[1].strip()
+                user_info['username'] = user_info['Contact'].split('@')[0].strip('<sip:')
+                user_info['IP'] = user_info['Contact'].split('@')[1].strip('>').split(':')[0]
 
-            elif user_found and line.strip().startswith("Expires:"):
+                if username and username == user_info['username']:
+                    user_found = True
+
+            elif line.strip().startswith("Expires:"):
                 user_info['Expires'] = line.split("Expires:")[1].strip()
-                break # Exit after finding all relevant information
+                
+                if user_found:
+                    break # Exit after finding all relevant information
+                else:
+                    user_info = {}
 
     return user_info
 
@@ -101,7 +111,7 @@ def update_log(log_file, msg):
 
 
 
-def add_proxy_entry(name, ip, listener_port):
+def add_dns_entry(name, ip, listener_port):
     # Database connection parameters
 
     connection = None
@@ -115,19 +125,17 @@ def add_proxy_entry(name, ip, listener_port):
 
         # SQL query to insert a new row
         insert_query = '''
-        INSERT INTO public.proxy (name, ip, listener_port)
-        VALUES (%s, %s, %s);
-        '''
+        INSERT INTO public.proxy (name, ip, listener_port) VALUES (%s, %s, %s) ON CONFLICT (name) DO UPDATE SET ip = EXCLUDED.ip, listener_port = EXCLUDED.listener_port; '''
 
         # Execute the query
-        cursor.execute(insert_query, (name.encode('utf-8'), ip.encode('utf-8'), listener_port))
+        cursor.execute(insert_query, (name, ip, listener_port))
 
         # Commit the transaction
         connection.commit()
-        print("Entry added successfully")
+        print("DNS entry added successfully")
 
     except Exception as error:
-        print("Failed to insert record into the proxy table", error)
+        print("Failed to insert record into the DNS proxy table", error)
 
     finally:
         # Close the cursor and connection
@@ -136,14 +144,44 @@ def add_proxy_entry(name, ip, listener_port):
         if connection:
             connection.close()
 
+def retrieve_proxy_data(name):
+    # Database connection parameters
+
+    connection = None
+    cursor = None
+    data = None
+
+    try:
+        # Connect to the database
+        connection = psycopg2.connect(**dns_params)
+        connection.set_client_encoding('UTF8')
+        cursor = connection.cursor()
+
+        # SQL query to insert a new row
+        select_query = '''
+        SELECT ip, listener_port
+        FROM public.proxy
+        WHERE name = %s;
+        '''
+
+        # Execute the query
+        cursor.execute(select_query, (name,))
+        data = cursor.fetchone()
+
+    except Exception as error:
+        print("Failed to retrieve data from the DNS proxy table", error)
+        return None
+
+    finally:
+        # Close the cursor and connection
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    return data
 
 
-
-
-# add_user_to_sip_file('databases/location_service.txt', 'alice.atlanta.com:5060', '<sip:abc@127.0.0.1>', expires = 1000)
-# add_user_to_sip_file('databases/location_service.txt', 'bob.biloxi.com:5060', '<sip:abc@192.168.0.1>')
-# add_user_to_sip_file('databases/location_service.txt', 'alice.atlanta.com:5060', '<sip:abc@192.168.0.1>')
-# modify_user_in_sip_file('databases/location_service.txt', 'alice.atlanta.com:5060', {"Contact" : "<sip:abc@192.168.0.1>", "Expires" : 3000})
 
 
 # import requests
@@ -163,3 +201,5 @@ def add_proxy_entry(name, ip, listener_port):
 #     print(file_content)
 # else:
 #     print(f"Failed to fetch the file. Status code: {response.status_code}")
+
+

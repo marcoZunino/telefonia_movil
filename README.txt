@@ -32,7 +32,7 @@ Request:
     Request :
         {
             Method : REGISTER/INVITE/ACK/CANCEL/BYE
-            uri :
+            uri : sip:<user>@<proxy> (no aplica para REGISTER)
         }
     Fields : {} *
 }
