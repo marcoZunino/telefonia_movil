@@ -6,7 +6,7 @@ dns_params = {
         'dbname': 'sip_proxy_dns',
         'user': 'postgres',
         'password': 'postgres',
-        'host': 'localhost',
+        'host': '192.168.1.7',
         'port': '5434'
     }
 

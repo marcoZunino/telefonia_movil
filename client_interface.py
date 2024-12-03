@@ -27,7 +27,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP bobspc.biloxi.com:5060;branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user} <sip:{user.lower()}@{proxy_name}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230@998sdasdh09\nCSeq: 1826 REGISTER\nContact: <sip:{user.lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
+            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP {user.lower()}.{proxy_name}:5060;branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user} <sip:{user.lower()}@{proxy_name}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230@998sdasdh09\nCSeq: 1826 REGISTER\nContact: <sip:{user.lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
             send_message(proxy[0], proxy[1], message)
                 
         case 'invite':
@@ -39,7 +39,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP bobspc.biloxi.com;branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite} <sip:{user_to_invite}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:{user.lower()}@{own_ip}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {user.lower()}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite} <sip:{user_to_invite}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:{user.lower()}@{own_ip}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
             send_message(proxy[0], proxy[1], message)
 
         
@@ -73,7 +73,7 @@ while True:
 
         case 'user':
             name = input("Please enter the user name: ")
-            if ' ' not in name:
+            if ' ' in name:
                 print("User name cannot contain spaces")
                 continue
             if name:

@@ -20,7 +20,7 @@ ejecutar como > python .\[script].py
     '-> codec: codificar y decodificar mensajes, chequeo de campos
     '-> methods: funciones para callbacks de requests (register/invite/responses...)
     '-> read_write: manejo de archivos de logs, LS, DNS
-    '-> send: envio de requests
+    '-> send: envio de mensajes
 
 
 
@@ -55,8 +55,12 @@ Response:
 * Fields:
 
 {
-    Via : {protocol, uri, [received], [branch], ...}
-    Max-Forwards : (no aplica para responses?)
+    Via : [
+        {protocol, uri, [received], [branch], ...},
+        {protocol, uri, [received], [branch], ...},
+        ...
+        ]
+    Max-Forwards : (no aplica para responses)
     To :
     From :
     Call-ID :
@@ -68,16 +72,5 @@ Response:
 
 
 ----------------------------
-
-
-
-
-
-Puerto server 5060
-
-UDP / TCP
-
-
-Location Service
 
 
