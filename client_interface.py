@@ -3,8 +3,7 @@ from functions.codec import decode, check_fields, add_received_IP
 # from functions.methods import methods
 from functions.read_write import retrieve_proxy_data
 from functions.send import send_message
-import subprocess
-
+# import subprocess
 
 proxy = ("", 8000)
 own_ip = socket.gethostbyname(socket.gethostname())

@@ -1,6 +1,6 @@
 import socket
 from functions.codec import decode, check_fields, add_received_IP
-from functions.methods import methods
+from functions.methods import client_methods
 from functions.read_write import update_log
 
 log = 'databases/log_client.txt'
@@ -66,8 +66,8 @@ while True:
 
         add_received_IP(data, addr[0]) # agregar IP de origen
 
-        methods[data["Request"]["Method"]](client_socket, data) # llamar funcion segun metodo
-        
+        client_methods[data["Request"]["Method"]](data) # llamar funcion segun metodo
+        break
 
         
     

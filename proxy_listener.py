@@ -8,6 +8,7 @@ location_service = 'databases/location_service.txt'
 
 # Create a socket object
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+# server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Get local machine name
 host = socket.gethostname()
@@ -70,22 +71,20 @@ while True:
 
         try:
             data = decode(msg)  # decodificar mensaje
-
-            add_received_IP(data, addr[0]) # agregar IP de origen
-
-            if not check_fields(data):
-                print('fields error')
-                client_socket.send('fields error!!'.encode('ascii')) 
-                continue
-            
-            # client_socket.send("fields check ok!".encode('ascii'))
-
-            methods[data["Request"]["Method"]](proxy_data, data) # llamar funcion segun metodo
-            break
-
         except Exception as e:
             print("Error: ", e)
             break
+    
+        if not check_fields(data):
+            print('fields error')
+            client_socket.send('fields error!!'.encode('ascii')) 
+            continue
+
+        add_received_IP(data, addr[0]) # agregar IP de origen
+
+        methods[data["Request"]["Method"]](data, proxy_data) # llamar funcion segun metodo
+        break
+
         # if msg == "SIP INVITE":
         #     trying = True
         #     # print("SIP INVITE")

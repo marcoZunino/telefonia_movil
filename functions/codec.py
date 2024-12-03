@@ -1,6 +1,6 @@
 import re
 
-
+# decoding message to data 'JSON'
 def decode(msg):
     data = {
                 "Request" : {},
@@ -37,9 +37,13 @@ def decode(msg):
     #     print(d, ">", data[d])
 
 def add_received_IP(data, address):
-
     data["Fields"]["Via"]["received"] = address
 
+def update_to_proxy(data, client_ip):
+    uri = data["Request"]["uri"].split('@')[0]
+    data["Request"]["uri"] = uri + '@' + client_ip
+
+# encode data 'JSON' to message
 def encode(data):
 
     msg = ""
@@ -54,15 +58,18 @@ def encode(data):
     for key in data["Fields"]:
         msg += key + ': '
         if key == 'Via':
-            for subkey in data["Fields"][key]:
+            for subkey in data["Fields"]["Via"]:
                 if subkey == 'protocol':
-                    msg += key + ': ' + data["Fields"][key][subkey] + ' '
+                    msg += data["Fields"]["Via"]["protocol"] + ' '
                 elif subkey == 'uri':
-                    msg += data["Fields"][key][subkey] + ';'
+                    msg += data["Fields"]["Via"]["uri"] + ';'
                 else:
                     msg += subkey + '=' + data["Fields"][key][subkey] + ';'
         else:
             msg += data["Fields"][key]
+        
+        if msg[-1] == ';':
+            msg = msg[:-1]
 
         msg += '\n'
         
@@ -72,6 +79,7 @@ def encode(data):
 
     return msg
 
+# check if message has all the required fields
 def check_fields(data):
     keys = data["Fields"].keys()
     if data["Request"]["Method"] == "Response":
@@ -79,6 +87,7 @@ def check_fields(data):
     else:
         return 'Via' in keys and 'Max-Forwards' in keys and 'From' in keys and 'To' in keys and 'Call-ID' in keys and 'CSeq' in keys
 
+# decode message as request or response
 def request_decode(req):
     r = req.split(' ')
     request = {}
@@ -106,22 +115,16 @@ def request_decode(req):
 
 # msg = "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8;received=192.0.2.1\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContent-Length: 0"
 
+
 # msg = "SIP/2.0 200 OK\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8\nTo: Bob <sip:bob@claro.uy>\nFrom: Bob <sip:bob@claro.uy>;tag=456248\nCall-ID: 843817637684230@998sdasdh09\nCSeq: 1826 REGISTER\nContent-Length: 0"
+
+# msg = "INVITE sip:bob@claro.uy SIP/2.0\nVia: SIP/2.0/UDP bobspc.biloxi.com;branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: bob@claro.uy <sip:bob@claro.uy>\nFrom: Bob <sip:bob@claro.uy>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:bob@192.168.1.7>\nContent-Type: application/sdp\nContent-Length: 142"
+
 
 # import json
 
 
 # data = decode(msg)
 
-
 # print(json.dumps(data, indent=4))
-# print(data["Request"]["uri"].split('@')[1])
-# uri = data["Request"]["uri"].split('@')[0]
-# data["Request"]["uri"] = uri + '@' + '192.168.1.18'
-# print(json.dumps(data, indent=4))
-
-
-
 # print(encode(data))
-# print(msg)
-    

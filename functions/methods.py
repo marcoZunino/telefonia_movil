@@ -1,10 +1,10 @@
-from functions.codec import encode
+from functions.codec import encode, update_to_proxy
 from functions.send import send_message
 from functions.read_write import add_user_to_sip_file, query_location_service, retrieve_proxy_data
 
 location_service = "databases/location_service.txt"
 
-def register(proxy_data, data):
+def register(data, proxy_data = None):
     data_fields = data["Fields"]
     
     print("register...", data_fields["From"])
@@ -20,31 +20,31 @@ def register(proxy_data, data):
     
     add_user_to_sip_file(location_service, data_fields["Via"]["uri"], contact)
 
-    send_response(200, data)
+    send_response(200, data, (data["Fields"]["Via"]["received"], 5060))
 
 
     # wait 200 OK or timer
 
-def invite(proxy_data, data):
+def invite(data, proxy_data = None):
     data_fields = data["Fields"]
     print("invite...", data_fields["From"], 'to', data_fields["To"])
     
-    send_response(100, data)
+    send_response(100, data, (data["Fields"]["Via"]["received"], 5060))
 
     forward_message(proxy_data, data)
     
 
 
-def ack(proxy_data, data):
+def ack(data, proxy_data = None):
     return
 
-def cancel(proxy_data, data):
+def cancel(data, proxy_data = None):
     return
 
-def bye(proxy_data, data):
+def bye(data, proxy_data = None):
     return
 
-def response(proxy_data, data):
+def response(data, proxy_data = None):
     data_fields = data["Fields"]
     print("response...", data["Request"]["Response Code"], data["Request"]["Response Description"])
     return
@@ -57,19 +57,30 @@ methods["CANCEL"] = cancel
 methods["BYE"] = bye
 methods["Response"] = response
 
+
+def client_invite(data, proxy_data = None):
+    data_fields = data["Fields"]
+    print("invite received from", data_fields["From"], '...')
+    
+    send_response(180, data, (data["Fields"]["Via"]["received"], 8000))
+
+client_methods = {}
+client_methods["INVITE"] = client_invite
+client_methods["Response"] = response
+
 response_codes = {}
 response_codes[100] = "Trying"
 response_codes[180] = "Ringing"
 response_codes[200] = "OK"
 
 
-def send_response(code, data):
+def send_response(code, data, addr):
 
-    print("sending response", data["Fields"]["Via"]["received"])
+    print("sending response", addr)
 
     message = f'SIP/2.0 {code} {response_codes[code]}\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8\nTo: {data["Fields"]["To"]}\nFrom: {data["Fields"]["From"]}\nCall-ID: {data["Fields"]["Call-ID"]}\nCSeq: {data["Fields"]["CSeq"]}\nContent-Length: {data["Fields"]["Content-Length"]}\r\n'
 
-    send_message(data["Fields"]["Via"]["received"], 5060, message)
+    send_message(addr[0], addr[1], message)
 
 def forward_message(proxy_data, data):
 
@@ -102,8 +113,6 @@ def forward_message(proxy_data, data):
         # WAIT 100 TRYING
 
 
-def update_to_proxy(data, client_ip):
-    uri = data["Request"]["uri"].split('@')[0]
-    data["Request"]["uri"] = uri + '@' + client_ip
+
 
 
