@@ -70,3 +70,43 @@ Response:
     [Content-Length : ]
 }
 
+
+------ STATE ------
+
+posibles estados:
+    - idle
+    - ringing
+    - ringing_back
+    - talking
+
+transiciones
+    
+    - se envia un INVITE
+        idle -> inviting
+
+    - llega un 180 ringing durante un invite:
+        inviting -> ringing_back
+
+    - error en invite
+        inviting -> idle
+
+    - llega un INVITE
+        idle -> ringing
+
+    - llega un 200 OK durante un invite:
+        ringing_back -> talking
+
+    - llega ACK luego de atender
+        ringing -> talking
+
+    - llega un 603 decline durante un invite
+        ringing_back -> idle
+
+    - se envia un CANCEL
+        ringing_back -> idle
+
+    - se envia un 603 decline
+        ringing -> idle
+
+    - alguien corta la llamada (BYE)
+        talking -> idle

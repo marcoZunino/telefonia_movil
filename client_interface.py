@@ -81,7 +81,7 @@ def manage_connection(client_socket, addr):
 
         add_received_IP(data, addr[0]) # agregar IP de origen
 
-        client_methods[data["Request"]["Method"]](data, state=STATE) # llamar funcion segun metodo
+        client_methods[data["Request"]["Method"]](data, state=STATE, proxy_data=proxy_data) # llamar funcion segun metodo
         break
 
 def handle_client(client_socket, addr):
@@ -126,7 +126,13 @@ while True:
                 continue
             # create and encode message
             message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {user.lower()}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite} <sip:{user_to_invite}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:{user.lower()}@{own_ip}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            
             send_message(proxy[0], proxy[1], message)
+            
+            STATE.update('inviting')
+
+        case 'state':
+            print(f"Current state: {STATE.current_state}")
 
         
         case 'proxy':
@@ -174,6 +180,30 @@ while True:
         case 'exit':
             print("Exiting...")
             break
+
+        case 'q':
+            match STATE.current_state:
+                case 'ringing_back':
+                    STATE.update('idle')
+                    print("Call canceled")
+                    # SEND CANCEL REQUEST
+                case 'ringing':
+                    STATE.update('idle')
+                    # SEND RESPONSE 603 DECLINE
+                    print("Call declined")
+                case 'talking':
+                    STATE.update('idle')
+                    # SEND BYE REQUEST
+                    print("Call terminated")
+                case _:
+                    print("Unknown command")
+        
+        case 'a':
+            if STATE.current_state == 'ringing':
+                pass
+                # SEND RESPONSE 200 OK
+            else:
+                print("Unknown command")
 
         case 'help':
             print("Available commands:")
