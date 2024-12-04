@@ -2,10 +2,8 @@ import time
 
 from functions.dynamic_prints import waiting_print
 from functions.send import forward_message, forward_response, send_ack, send_message, send_response
-from functions.read_write import add_user_to_sip_file
+from functions.read_write import add_user_to_sip_file, ls_proxy, query_location_service
 from functions.state import State
-
-location_service = "databases/location_service.txt"
 
 # ------------ PROXY METHODS ------------
 
@@ -20,17 +18,18 @@ def register(data, proxy_data = None):
         contact = data_fields["Contact"]
     except:
         via = data_fields["Via"][0]
-        contact = '<' + via["uri"]
+        contact = via["uri"]
         try:
-            contact += '@' + via["received"] + '>'
+            contact += '@' + via["received"]
         except:
             pass
 
-    client_ip = contact.split('@')[1].strip('>').split(':')[0]
+    client_ip = contact.split('@')[1]
+    client_port = int(data_fields["Via"][0]["uri"].split(':')[1])
     
-    add_user_to_sip_file(location_service, data_fields["Via"][0]["uri"], contact)
+    add_user_to_sip_file(ls_proxy(proxy_data["name"]), data_fields["Via"][0]["uri"], contact)
 
-    send_response(200, data, (client_ip, 5060))
+    send_response(200, data, (client_ip, client_port))
 
 
     # wait 200 OK or timer
@@ -38,8 +37,13 @@ def register(data, proxy_data = None):
 def invite(data, proxy_data = None):
     data_fields = data["Fields"]
     print("invite...", data_fields["From"], 'to', data_fields["To"])
+
+    try:
+        port = int(query_location_service(ls_proxy(proxy_data["name"]), uri=data_fields["Via"][0]["uri"])["port"])
+    except:
+        port = 5060
     
-    send_response(100, data, (data["Fields"]["Via"][0]["received"], 5060))
+    send_response(100, data, (data["Fields"]["Via"][0]["received"], port))
 
     forward_message(proxy_data, data)
 
@@ -192,7 +196,6 @@ client_methods["ACK"] = client_ack
 client_methods["CANCEL"] = client_cancel
 client_methods["BYE"] = client_bye
 client_methods["Response"] = client_response
-
 
 
 

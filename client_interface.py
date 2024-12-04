@@ -114,7 +114,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP {user.lower()}.{proxy_name}:5060;branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user} <sip:{user.lower()}@{proxy_name}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230@998sdasdh09\nCSeq: 1826 REGISTER\nContact: <sip:{user.lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
+            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name}:{port};branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user} <sip:{user.lower()}@{proxy_name}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user.lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
             send_message(proxy[0], proxy[1], message)
                 
         case 'invite':
@@ -126,7 +126,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {user.lower()}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite} <sip:{user_to_invite}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:{user.lower()}@{own_ip}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user.lower()}@{host}.{proxy_name}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
             
             send_message(proxy[0], proxy[1], message)
             

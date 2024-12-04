@@ -4,9 +4,6 @@ from functions.methods import methods
 from functions.read_write import update_log
 from functions.dns_manager import add_dns_entry
 
-log = 'databases/log_proxy.txt'
-location_service = 'databases/location_service.txt'
-
 # Create a socket object
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -41,16 +38,12 @@ proxy_data = {
     'port': port
 }
 
-# LOCATION_SERVICE = {}
 
 while True:
     # Establish a connection
     
     client_socket, addr = server_socket.accept()
     print(f"\nGot a connection from {addr}")
-    # LOCATION_SERVICE[client_socket] = {
-    #     'Address' : addr
-    # }
 
     while True:
         # Receive data from the client

@@ -37,6 +37,11 @@ def decode(msg):
                 else:
                     data["Fields"][key_value[0]] = key_value[1]
 
+            try:
+                data["Fields"]["Contact"] = data["Fields"]["Contact"].strip('<>')
+            except:
+                pass
+
             # print(line)
     # print('decoding ok')
     return data

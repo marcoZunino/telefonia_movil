@@ -2,13 +2,20 @@ from datetime import datetime
 
 # LOCATION SERVICE FUNCTIONS ---------------------
 
+def ls_proxy(proxy_name):
+    return f'databases/location_service_{proxy_name}.txt'
+
 def add_user_to_sip_file(location_service, uri, contact, expires=3600):
 
-    users = parse_sip_file(location_service)
+    try:
+        users = parse_sip_file(location_service)
 
-    if any(user['URI'] == uri for user in users):
-        modify_user_in_sip_file(location_service, uri, {"Contact": contact, "Expires": expires})
-        return
+        if any(user['URI'] == uri for user in users):
+            modify_user_in_sip_file(location_service, uri, {"Contact": contact, "Expires": expires})
+            return
+    
+    except:
+        pass
 
     with open(location_service, 'a') as file:
 
@@ -19,31 +26,35 @@ def add_user_to_sip_file(location_service, uri, contact, expires=3600):
 
 def parse_sip_file(location_service):
 
-    with open(location_service, 'r') as file:
-        users = []
-        user = {}
+    try:
+        with open(location_service, 'r') as file:
+            users = []
+            user = {}
 
-        for line in file:
+            for line in file:
 
-            line = line.strip()
-            if line.startswith("[User]"):
-                if user:
-                    users.append(user)
-                    user = {}
+                line = line.strip()
+                if line.startswith("[User]"):
+                    if user:
+                        users.append(user)
+                        user = {}
 
-            elif line.startswith("URI:"):
-                user['URI'] = line.split("URI:")[1].strip()
+                elif line.startswith("URI:"):
+                    user['URI'] = line.split("URI:")[1].strip()
 
-            elif line.startswith("Contact:"):
-                user['Contact'] = line.split("Contact:")[1].strip()
+                elif line.startswith("Contact:"):
+                    user['Contact'] = line.split("Contact:")[1].strip()
 
-            elif line.startswith("Expires:"):
-                user['Expires'] = line.split("Expires:")[1].strip()
+                elif line.startswith("Expires:"):
+                    user['Expires'] = line.split("Expires:")[1].strip()
 
-        if user:
-            users.append(user)
+            if user:
+                users.append(user)
 
-    return users
+        return users
+    
+    except:
+        return []
 
 def modify_user_in_sip_file(location_service, uri, new_params):
 
@@ -76,14 +87,16 @@ def query_location_service(file_path, uri=None, username=None, proxy_name=None):
             
             if line.strip().startswith("URI:"):
                 user_info['URI'] = line.split("URI:")[1].strip()
+                user_info['port'] = int(user_info['URI'].split(':')[1])
+                user_info['URI'] = user_info['URI'].split(':')[0]
                 if uri and uri == user_info['URI']:
                     user_found = True
             
             elif line.strip().startswith("Contact:"):
                 user_info['Contact'] = line.split("Contact:")[1].strip()
                 try:
-                    user_info['username'] = user_info['Contact'].split('@')[0].strip('<sip:')
-                    user_info['IP'] = user_info['Contact'].split('@')[1].strip('>').split(':')[0]
+                    user_info['username'] = user_info['Contact'].split('@')[0].strip('sip:')
+                    user_info['IP'] = user_info['Contact'].split('@')[1]
 
                     if username and username == user_info['username']:
                         user_found = True

@@ -1,10 +1,8 @@
 import socket
 
 from functions.codec import add_via_entry, encode, encode_via, pop_via_entry, update_to_proxy
-from functions.read_write import query_location_service
+from functions.read_write import ls_proxy, query_location_service
 from functions.dns_manager import retrieve_proxy_data
-
-location_service = "databases/location_service.txt"
 
 def send_message(host, port, message):
     # Create a socket object
@@ -63,14 +61,17 @@ def forward_message(proxy_data, data):
     if dest_proxy == proxy_data["name"]: # local client
 
         try:
-            client_ip = query_location_service(location_service, username=dest_username, proxy_name=dest_proxy)["IP"]
+            client_data = query_location_service(ls_proxy(proxy_data["name"]), username=dest_username, proxy_name=dest_proxy)
+            client_ip = client_data["IP"]
+            client_port = int(client_data["port"])
+
         except Exception as e:
             print("Error forwarding message to client > ", e, dest_username)
             return
 
         print("forwarding message directly to client in", client_ip)
         update_to_proxy(data, client_ip)
-        send_message(client_ip, 5060, encode(data))
+        send_message(client_ip, client_port, encode(data))
         # WAIT 180 RINGING
         
     
@@ -104,7 +105,7 @@ def send_ack(data, proxy_data):
         uri = data["Fields"]["To"].split(' ')[0]
         dest = proxy_data
     else:
-        uri = data["Fields"]["Contact"].strip('<>')
+        uri = data["Fields"]["Contact"]
         dest = (uri.split("@")[1], 5060)
     
     data["Request"]["Method"] = "ACK"
