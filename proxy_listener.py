@@ -46,7 +46,7 @@ while True:
     # Establish a connection
     
     client_socket, addr = server_socket.accept()
-    print(f"Got a connection from {addr}")
+    print(f"\nGot a connection from {addr}")
     # LOCATION_SERVICE[client_socket] = {
     #     'Address' : addr
     # }

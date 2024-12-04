@@ -1,14 +1,20 @@
 import socket
 from functions.codec import decode, check_fields, add_received_IP
-# from functions.methods import methods
-from functions.read_write import retrieve_proxy_data
+from functions.methods import client_methods
+from functions.read_write import retrieve_proxy_data, update_log
 from functions.send import send_message
+from functions.state import State
+
+import threading
+
 # import subprocess
 
 proxy = ("", 8000)
 own_ip = socket.gethostbyname(socket.gethostname())
 user = "Bob"
 proxy_name = None
+
+STATE = State()
 
 # Launch client_listener.py after client_interface.py code is executed
 # try:
@@ -17,9 +23,89 @@ proxy_name = None
 # except subprocess.CalledProcessError as e:
 #     print("Failed to execute client_listener.py:", e)
 
+
+log = 'databases/log_client.txt'
+
+# Create a socket object
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+# Get local machine name
+host = socket.gethostname()
+port = 5060
+
+socket_ready = False
+while not socket_ready:
+    try:
+        # Bind the socket to the port
+        server_socket.bind((host, port))
+        # Start listening for incoming connections
+        server_socket.listen(5)
+
+        socket_ready = True
+    except:
+        port += 1
+
+
+ip_address = socket.gethostbyname(host)
+
+print(f"Server listening on {host} {ip_address} : {port}")
+
+def manage_connection(client_socket, addr):
+    while True:
+        # Receive data from the client
+        rx = client_socket.recv(1024)
+
+        if not rx:
+            continue # esperar mensajes
+        
+        msg = rx.decode('utf-8')
+        # [:-2]   # decodificar y quitar \r\n
+
+        update_log(log, msg) # actualizar log
+
+        if msg == "Q":
+            print("salir")
+            client_socket.close()
+            break
+
+        try:
+            data = decode(msg)  # decodificar mensaje
+        except Exception as e:
+            print("Error: ", e)
+            break
+    
+        if not check_fields(data):
+            print('fields error')
+            client_socket.send('fields error!!'.encode('ascii')) 
+            continue
+
+        add_received_IP(data, addr[0]) # agregar IP de origen
+
+        client_methods[data["Request"]["Method"]](data, state=STATE) # llamar funcion segun metodo
+        break
+
+def handle_client(client_socket, addr):
+    print(f"\nGot a connection from {addr}")
+    manage_connection(client_socket, addr)
+    client_socket.close()
+    print("> ")
+
+def accept_connections():
+    while True:
+        client_socket, addr = server_socket.accept()
+        client_thread = threading.Thread(target=handle_client, args=(client_socket, addr))
+        client_thread.start()
+
+# Start a thread to handle incoming connections
+connection_thread = threading.Thread(target=accept_connections)
+connection_thread.daemon = True
+connection_thread.start()
+
+commands = ['help', 'register', 'invite', 'proxy', 'user', 'user?', 'proxy?', 'exit']
+
 while True:
-    command = input("Please enter a command (type 'exit' to quit): ")
-    commands = ['help', 'register', 'invite', 'proxy', 'user', 'user?', 'proxy?', 'exit']
+
+    command = input("> ")
     
     match command.lower():
         case 'register':
@@ -31,7 +117,7 @@ while True:
             send_message(proxy[0], proxy[1], message)
                 
         case 'invite':
-            user_to_invite = input("Please enter the user to invite [username@proxy_name]: ")
+            user_to_invite = input("User to invite [username@proxy_name] > ")
             # alice@atlanta.com
             if not user_to_invite:
                 continue
@@ -57,7 +143,7 @@ while True:
 
             # proxy = (ip, port)
 
-            name = input("Please enter the proxy name: ")
+            name = input("Proxy name > ")
             if not name:
                 continue
             
@@ -72,7 +158,7 @@ while True:
             proxy_name = name
 
         case 'user':
-            name = input("Please enter the user name: ")
+            name = input("User name > ")
             if ' ' in name:
                 print("User name cannot contain spaces")
                 continue

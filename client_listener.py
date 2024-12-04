@@ -2,6 +2,7 @@ import socket
 from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import client_methods
 from functions.read_write import update_log
+import subprocess
 
 log = 'databases/log_client.txt'
 
@@ -28,6 +29,13 @@ while not socket_ready:
 ip_address = socket.gethostbyname(host)
 
 print(f"Server listening on {host} {ip_address} : {port}")
+
+# Launch client_interface.py after client_listener.py code is executed
+# try:
+#     result = subprocess.run(['python', 'client_interface.py'], check=True)
+#     print("client_interface.py executed successfully")
+# except subprocess.CalledProcessError as e:
+#     print("Failed to execute client_interface.py:", e)
 
 
 while True:
@@ -69,7 +77,6 @@ while True:
         client_methods[data["Request"]["Method"]](data) # llamar funcion segun metodo
         break
 
-        
     
     
     client_socket.close()   

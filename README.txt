@@ -6,21 +6,21 @@ ejecutar como > python .\[script].py
     iniciar socket para proxy
     (puerto 8000 por defecto)
 
--> client_listener
-    iniciar socket para proxy
-    (puerto 5060 por defecto)
-
 -> client_interface
     interfaz para envio de requests (register/invite)
     permite configurar datos de usuario y proxy asociado
 
->>> ejecutar los tres scripts al mismo tiempo en terminales distintas
+    se inicia automaticamente socket para cliente
+    (puerto 5060 por defecto)
+
 
 -> functions
     '-> codec: codificar y decodificar mensajes, chequeo de campos
     '-> methods: funciones para callbacks de requests (register/invite/responses...)
     '-> read_write: manejo de archivos de logs, LS, DNS
     '-> send: envio de mensajes
+    '-> state: manejo de 'maquina' de estados
+    '-> dynamic_prints: mostrar estado de 'ringing', 'talking', etc
 
 
 
@@ -69,8 +69,4 @@ Response:
     [Content-Type : ]
     [Content-Length : ]
 }
-
-
-----------------------------
-
 

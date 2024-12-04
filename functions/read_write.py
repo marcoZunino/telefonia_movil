@@ -1,3 +1,4 @@
+from datetime import datetime
 import psycopg2
 
 
@@ -147,7 +148,7 @@ def modify_user_in_sip_file(location_service, uri, new_params):
                                     
                 file.write(line)
 
-def query_location_service(file_path, uri=None, username=None):
+def query_location_service(file_path, uri=None, username=None, proxy_name=None):
 
     with open(file_path, 'r') as file:
         user_info = {}
@@ -162,11 +163,17 @@ def query_location_service(file_path, uri=None, username=None):
             
             elif line.strip().startswith("Contact:"):
                 user_info['Contact'] = line.split("Contact:")[1].strip()
-                user_info['username'] = user_info['Contact'].split('@')[0].strip('<sip:')
-                user_info['IP'] = user_info['Contact'].split('@')[1].strip('>').split(':')[0]
+                try:
+                    user_info['username'] = user_info['Contact'].split('@')[0].strip('<sip:')
+                    user_info['IP'] = user_info['Contact'].split('@')[1].strip('>').split(':')[0]
 
-                if username and username == user_info['username']:
-                    user_found = True
+                    if username and username == user_info['username']:
+                        user_found = True
+                        if proxy_name:
+                            if proxy_name not in user_info['URI']:
+                                user_found = False
+                except:
+                    continue
 
             elif line.strip().startswith("Expires:"):
                 user_info['Expires'] = line.split("Expires:")[1].strip()
@@ -182,7 +189,7 @@ def query_location_service(file_path, uri=None, username=None):
 # LOGS
 def update_log(log_file, msg):
     with open(log_file, 'a') as log_file:
-        log_file.write(msg + '\n\n')    # guardar mensaje en log
+        log_file.write(f'{datetime.now()}\n{msg}\n\n')    # guardar mensaje en log
 
 
 
@@ -205,4 +212,4 @@ def update_log(log_file, msg):
 # else:
 #     print(f"Failed to fetch the file. Status code: {response.status_code}")
 
-
+# print(query_location_service('databases/location_service.txt', username='bob', proxy_name='personal.ar'))

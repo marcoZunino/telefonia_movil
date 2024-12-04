@@ -82,6 +82,9 @@ def update_to_proxy(data, client_ip):
 def add_via_entry(data, via_entry):
     data["Fields"]["Via"].insert(0, via_entry)
 
+def pop_via_entry(data):
+    return data["Fields"]["Via"].pop(0)
+
 # encode data 'JSON' to message
 def encode(data):
 
@@ -113,6 +116,7 @@ def encode(data):
     return msg
 
 def encode_via(via_array):
+    msg = ""
     for v in via_array:
         msg += 'Via: '
         for subkey in v:
@@ -125,6 +129,7 @@ def encode_via(via_array):
         if msg[-1] == ';':
             msg = msg[:-1]
         msg += '\n'
+    return msg
 
 
     
@@ -152,7 +157,7 @@ def encode_via(via_array):
 
 
 # data = decode(msg)
-# add_received_IP(data, '192.168.10.10')
+
 
 # print(check_fields(data))
 
@@ -161,6 +166,8 @@ def encode_via(via_array):
 #     "uri": "server10.biloxi.com",
 #     "branch": "z9hG4bK4b43c2ff8.1",
 #     })
+
+# add_received_IP(data, '192.168.10.10')
 
 
 # print(json.dumps(data, indent=4))
