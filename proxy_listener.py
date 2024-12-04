@@ -1,7 +1,8 @@
 import socket
 from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import methods
-from functions.read_write import add_dns_entry, update_log
+from functions.read_write import update_log
+from functions.dns_manager import add_dns_entry
 
 log = 'databases/log_proxy.txt'
 location_service = 'databases/location_service.txt'

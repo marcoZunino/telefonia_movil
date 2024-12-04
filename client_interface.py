@@ -1,7 +1,8 @@
 import socket
 from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import client_methods
-from functions.read_write import retrieve_proxy_data, update_log
+from functions.read_write import update_log
+from functions.dns_manager import retrieve_proxy_data
 from functions.send import send_message
 from functions.state import State
 

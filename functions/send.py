@@ -1,7 +1,8 @@
 import socket
 
 from functions.codec import add_via_entry, encode, encode_via, pop_via_entry, update_to_proxy
-from functions.read_write import query_location_service, retrieve_proxy_data
+from functions.read_write import query_location_service
+from functions.dns_manager import retrieve_proxy_data
 
 location_service = "databases/location_service.txt"
 
