@@ -1,0 +1,349 @@
+
+2024-12-05 05:12:08.389294
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.orange.fr:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@orange.fr>
+From: Alice <sip:alice@orange.fr>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+
+2024-12-05 05:12:17.246024
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.orange.fr;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: eve <sip:eve@orange.fr>
+From: Alice <sip:alice@orange.fr>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+
+2024-12-05 05:12:17.301601
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.orange.fr;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: eve <sip:eve@orange.fr>
+From: Alice <sip:alice@orange.fr>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:eve@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+
+2024-12-05 05:12:20.808055
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.orange.fr;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: eve <sip:eve@orange.fr>
+From: Alice <sip:alice@orange.fr>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:eve@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 142
+
+----------------------------------------------------------------------------------
+
+
+2024-12-05 05:15:25.917621
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 05:15:51.978324
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:15:52.217412
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:15:55.797325
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 142
+
+
+2024-12-05 05:24:53.468855
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 05:25:14.444129
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:25:15.054989
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:25:18.304896
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 142
+
+
+2024-12-05 05:27:04.018859
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta,com:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta,com>
+From: Alice <sip:alice@atlanta,com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 05:27:24.414636
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta,com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta,com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:27:24.731219
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta,com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta,com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:27:28.190210
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta,com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta,com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 142
+
+
+2024-12-05 05:27:28.242669
+ACK sip:bob@192.168.1.7 SIP/2.0
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta,com;branch=z9hG4bK776asdhds
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta,com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 ACK
+Content-Length: 0
+Max-Forwards: 70
+
+
+2024-12-05 05:31:44.704606
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5061;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 05:32:16.745886
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:32:16.955264
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 05:32:22.248165
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 142
+
+
+2024-12-05 16:41:38.272145
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5060;branch=z9hG4bKnashds7;received=172.28.113.2
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 16:45:42.208650
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 16:46:01.897350
+INVITE sip:bob@192.168.1.7 SIP/2.0
+Via: SIP/2.0/UDP biloxi.com
+Via: SIP/2.0/UDP atlanta.com;received=192.168.1.7
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+Max-Forwards: 68
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Contact: <sip:alice@LAPTOP-HCN5E63L.atlanta.com>
+Content-Type: application/sdp
+Content-Length: 142
+
+
+2024-12-05 16:47:00.326352
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 16:47:33.908071
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com:5060;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@atlanta.com>
+From: Alice <sip:alice@atlanta.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 16:47:38.627078
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 16:47:39.045411
+SIP/2.0 180 Ringing
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 0
+
+
+2024-12-05 16:47:58.595830
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.atlanta.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+To: bob <sip:bob@biloxi.com>
+From: Alice <sip:alice@atlanta.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+Contact: <sip:bob@192.168.1.7>
+CSeq: 314159 INVITE
+Content-Length: 142
+
+
+2024-12-05 16:54:04.959561
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.biloxi.com:5061;branch=z9hG4bKnashds7;received=192.168.1.7
+To: Alice <sip:alice@biloxi.com>
+From: Alice <sip:alice@biloxi.com>;tag=456248
+Call-ID: 843817637684230
+CSeq: 1826 REGISTER
+Content-Length: 0
+
+
+2024-12-05 16:54:57.583806
+INVITE sip:alice@192.168.1.7 SIP/2.0
+Via: SIP/2.0/UDP biloxi.com
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.biloxi.com;branch=z9hG4bK776asdhds;received=192.168.1.7
+Max-Forwards: 69
+To: alice <sip:alice@biloxi.com>
+From: Bob <sip:bob@biloxi.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 INVITE
+Contact: <sip:bob@LAPTOP-HCN5E63L.biloxi.com>
+Content-Type: application/sdp
+Content-Length: 142
+
+
+2024-12-05 16:55:01.584880
+ACK sip:alice@192.168.1.7 SIP/2.0
+Via: SIP/2.0/UDP LAPTOP-HCN5E63L.biloxi.com;branch=z9hG4bK776asdhds
+To: alice <sip:alice@biloxi.com>
+From: Bob <sip:bob@biloxi.com>;tag=1928301774
+Call-ID: a84b4c76e66710
+CSeq: 314159 ACK
+Content-Length: 0
+Max-Forwards: 70
+
+

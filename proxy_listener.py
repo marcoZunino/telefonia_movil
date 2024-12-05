@@ -1,7 +1,7 @@
 import socket
 from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import methods
-from functions.read_write import update_log
+from functions.read_write import ls_proxy, update_log
 from functions.dns_manager import add_dns_entry
 
 # Create a socket object
@@ -32,6 +32,10 @@ ip_address = socket.gethostbyname(host)
 print(f"Proxy {proxy_name} listening on {host} {ip_address} : {port}")
 add_dns_entry(proxy_name, ip_address, port)
 
+# reset LS file
+with open(ls_proxy(proxy_name), 'w') as file:
+    pass # Just opening and closing the file in write mode is enough to clear it
+
 proxy_data = {
     'hostname': host,
     'name': proxy_name,
@@ -56,7 +60,7 @@ while True:
         msg = rx.decode('utf-8')
         # [:-2]   # decodificar y quitar \r\n
 
-        update_log('logs_proxy/log_' + proxy_name + '.txt', msg) # actualizar log
+        update_log('logs_proxy/log_proxy_' + proxy_name + '.txt', msg) # actualizar log
         # print(msg)
 
 

@@ -2,7 +2,7 @@ import time
 
 from functions.dynamic_prints import waiting_print
 from functions.send import forward_message, forward_response, send_ack, send_message, send_response
-from functions.read_write import add_user_to_sip_file, ls_proxy, query_location_service, search_port
+from functions.read_write import add_user_to_sip_file, ls_proxy, search_port
 from functions.state import State
 
 # ------------ PROXY METHODS ------------
@@ -25,9 +25,12 @@ def register(data, proxy_data = None):
             pass
 
     client_ip = contact.split('@')[1]
+
     client_port = int(data_fields["Via"][0]['port'])
     
-    add_user_to_sip_file(ls_proxy(proxy_data["name"]), f'{data_fields["Via"][0]['uri']}:{client_port}', contact)
+    add_user_to_sip_file(ls_proxy(proxy_data["name"]),
+                         f'{data_fields["Via"][0]['uri']}:{client_port}',
+                         contact)
 
     send_response(200, data, (client_ip, client_port))
 
@@ -107,10 +110,11 @@ def client_invite(data, state = State(), user_data = None, proxy_data = None):
 
     port = search_port(data)
     
-    send_response(180, data, (data["Fields"]["Via"][0]["received"], port), contact = f'sip:{user_data["name"]}@{user_data["ip"]}')
+    send_response(180, data, (data["Fields"]["Via"][0]["received"], port), contact = f'sip:{user_data["name"].lower()}@{user_data["ip"]}')
 
     if state.current_state == 'idle':
         state.update('ringing')
+        state.save_data(data)
         print("\nIncoming call from", data["Fields"]["From"])
         print("Press 'a' (+ enter) to accept")
         print("Press 'q' (+ enter) to decline")
@@ -120,6 +124,8 @@ def client_ack(data, state = State(), user_data = None, proxy_data = None):
 
     if state.current_state == 'ringing':
         state.update('talking')
+        state.save_data(data)
+
         print("Call accepted, press 'q' (+ enter) to terminate")
         waiting_print("Talking...", state=state)
 
@@ -158,8 +164,10 @@ def client_response(data, state = State(), user_data = None, proxy_data = None):
             print("OK")
             # state.update()
             if state.current_state == "ringing_back":
-                state.update("talking")
                 
+                state.update("talking")
+                state.save_data(data)
+
                 send_ack(data, proxy_data)
 
                 print("Call accepted, press 'q' (+ enter) to terminate")

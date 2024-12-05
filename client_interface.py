@@ -3,7 +3,7 @@ from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import client_methods
 from functions.read_write import update_log
 from functions.dns_manager import retrieve_proxy_data
-from functions.send import send_message
+from functions.send import send_message, send_response
 from functions.state import State
 
 import threading
@@ -32,14 +32,18 @@ own_ip = socket.gethostbyname(host)
 
 print(f"Server listening on {host} {own_ip} : {port}")
 
-proxy = ("", 8000)
-proxy_name = None
 
 user_data = {
     'hostname' : host,
     'name' : "Bob",
     'ip' : own_ip,
     'port' : port
+}
+
+proxy_data = {
+    'name': None,
+    'ip': None,
+    'port': 8000
 }
 
 def manage_connection(client_socket, addr):
@@ -93,8 +97,8 @@ connection_thread = threading.Thread(target=accept_connections)
 connection_thread.daemon = True
 connection_thread.start()
 
-commands = ['help', 'register', 'invite', 'proxy', 'user', 'user?', 'proxy?', 'exit']
 
+commands = ['help', 'register', 'invite', 'proxy', 'user', 'state', 'user?', 'proxy?', 'exit']
 
 STATE = State()
 
@@ -104,25 +108,25 @@ while True:
     
     match command.lower():
         case 'register':
-            if not proxy_name:
+            if not proxy_data["name"]:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name}:{port};branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_name}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
-            send_message(proxy[0], proxy[1], message)
+            message = f"REGISTER sip:registrar.{proxy_data["name"]} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]}:{port};branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
+            send_message(proxy_data["ip"], proxy_data["port"], message)
                 
         case 'invite':
             user_to_invite = input("User to invite [username@proxy_name] > ")
             # alice@atlanta.com
             if not user_to_invite:
                 continue
-            if not proxy_name:
+            if not proxy_data["name"]:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_name}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_data["name"]}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
             
-            send_message(proxy[0], proxy[1], message)
+            send_message(proxy_data["ip"], proxy_data["port"], message)
             
             STATE.update('inviting')
 
@@ -131,32 +135,22 @@ while True:
 
         
         case 'proxy':
-            
-            # ip = input("Please enter the proxy IP: ")
-            # if not ip:
-            #     print("IP error")
-            #     continue
-            
-            # try:
-            #     port = int(input("Please enter the proxy port (default=8000): "))
-            # except:
-            #     port = 8000
-
-            # proxy = (ip, port)
 
             name = input("Proxy name > ")
             if not name:
                 continue
             
-            proxy_data = retrieve_proxy_data(name)
+            proxy_address = retrieve_proxy_data(name)
 
-            if not proxy_data:
+            if not proxy_address:
                 print("Proxy not found")
                 continue
 
-            print(f"Proxy {name} found at {proxy_data[0]}:{proxy_data[1]}")
-            proxy = proxy_data
-            proxy_name = name
+            print(f"Proxy {name} found at {proxy_address[0]}:{proxy_address[1]}")
+            
+            proxy_data["name"] = name
+            proxy_data["ip"] = proxy_address[0]
+            proxy_data["port"] = proxy_address[1]
 
         case 'user':
             name = input("User name > ")
@@ -170,7 +164,7 @@ while True:
             print(f"User: {user_data["name"]}")
 
         case 'proxy?':
-            print(f"Proxy {proxy_name} address: {proxy[0]}:{proxy[1]}")
+            print(f"Proxy {proxy_data["name"]} address: {proxy_data["ip"]}:{proxy_data["port"]}")
 
         case 'exit':
             print("Exiting...")
@@ -195,8 +189,9 @@ while True:
         
         case 'a':
             if STATE.current_state == 'ringing':
-                pass
-                # SEND RESPONSE 200 OK
+                
+                send_response(200, STATE.last_data, (proxy_data["ip"], proxy_data["port"]), contact=f'sip:{user_data["name"].lower()}@{user_data["ip"]}')
+                
             else:
                 print("Unknown command")
 

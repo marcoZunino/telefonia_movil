@@ -75,6 +75,7 @@ Response:
 
 posibles estados:
     - idle
+    - inviting
     - ringing
     - ringing_back
     - talking

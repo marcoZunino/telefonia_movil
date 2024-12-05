@@ -1,0 +1,10 @@
+
+[User]
+URI: bob@LAPTOP-HCN5E63L.biloxi.com:5060
+Contact: sip:bob@192.168.1.7
+Expires: 3600
+
+[User]
+URI: alice@LAPTOP-HCN5E63L.biloxi.com:5061
+Contact: sip:alice@192.168.1.7
+Expires: 3600

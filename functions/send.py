@@ -119,12 +119,22 @@ def send_ack(data, proxy_data):
     # if data["Request"]["Method"] != "Response" or data["Request"]["Response Code"] != 200:
     #     return
     
-    if "Contact" not in data["Fields"]:
-        uri = data["Fields"]["To"].split(' ')[1]
-        dest = proxy_data # corregir proxy_data?
-    else:
+    if "Contact" in data["Fields"]:
+
         uri = data["Fields"]["Contact"]
-        dest = (data["Fields"]["Contact"].split("@")[1], 5060) # FIXME buscar port en LS
+
+        try:
+            dest_port = search_port(data, proxy_data = {
+                    "name" : data["Fields"]["To"].split(' ')[1].strip('<>').split('@')[1]
+                    }, username=data["Fields"]["To"].split(' ')[0].lower())
+        except:
+            dest_port = 5060
+
+        dest = (data["Fields"]["Contact"].split("@")[1], dest_port)
+        
+    else:
+        uri = data["Fields"]["To"].split(' ')[1]
+        dest = (proxy_data["ip"], proxy_data["port"])
     
     data["Request"]["Method"] = "ACK"
     data["Request"].pop("Response Code")

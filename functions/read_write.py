@@ -12,6 +12,8 @@ def add_user_to_sip_file(location_service, uri, contact, expires=3600):
     try:
         users = parse_sip_file(location_service)
 
+        uri = contact.split('@')[0].split(':')[1] + '@' + uri
+
         if any(user['URI'] == uri for user in users):
             modify_user_in_sip_file(location_service, uri, {"Contact": contact, "Expires": expires})
             return
@@ -42,7 +44,7 @@ def parse_sip_file(location_service):
                         user = {}
 
                 elif line.startswith("URI:"):
-                    user['URI'] = line.split("URI:")[1].strip()
+                    user['URI'] = line.split("URI:")[1].strip().split('@')[1]
 
                 elif line.startswith("Contact:"):
                     user['Contact'] = line.split("Contact:")[1].strip()
@@ -88,11 +90,16 @@ def query_location_service(file_path, uri=None, username=None, proxy_name=None):
         for line in file:
             
             if line.strip().startswith("URI:"):
+
                 user_info['URI'] = line.split("URI:")[1].strip()
                 user_info['port'] = int(user_info['URI'].split(':')[1])
-                user_info['URI'] = user_info['URI'].split(':')[0]
+                user_info['username'] = user_info['URI'].split(':')[0].split('@')[0]
+                user_info['URI'] = user_info['URI'].split(':')[0].split('@')[1]
+
                 if uri and uri == user_info['URI']:
                     user_found = True
+                    if username and username != user_info['username']:
+                        user_found = False
             
             elif line.strip().startswith("Contact:"):
                 user_info['Contact'] = line.split("Contact:")[1].strip()
@@ -118,13 +125,19 @@ def query_location_service(file_path, uri=None, username=None, proxy_name=None):
 
     return user_info
 
-def search_port(data, proxy_data = None):
+def search_port(data, proxy_data = None, username = None):
+
+    if not username:
+        username=data["Fields"]["From"].split(' ')[0].lower()
 
     dest_port = None
 
     try:
         # buscar si es cliente
-        dest_port = query_location_service(ls_proxy(proxy_data["name"]), uri=data["Fields"]["Via"][0]['uri'])["port"]
+        dest_port = query_location_service(ls_proxy(proxy_data["name"]),
+                                           uri=data["Fields"]["Via"][0]['uri'],
+                                           username=username
+                                           )["port"]
     except:
         # buscar si es proxy
         for p in retrieve_all_proxys():
@@ -144,24 +157,3 @@ def update_log(log_file, msg):
         log_file.write(f'{datetime.now()}\n{msg}\n\n')    # guardar mensaje en log
 
 
-
-
-# import requests
-
-# # URL of the remote file
-# url = 'https://drive.google.com/file/d/1gkzzGppYdSMRfRILeSY-xBOLWRB1FFiF/view?usp=drive_link'
-
-# # Fetch the content of the remote file
-# response = requests.get(url)
-
-# # Check if the request was successful
-# if response.status_code == 200:
-#     # Get the content of the file
-#     file_content = response.text
-    
-#     # Process the content as needed
-#     print(file_content)
-# else:
-#     print(f"Failed to fetch the file. Status code: {response.status_code}")
-
-# print(query_location_service('databases/location_service.txt', username='bob', proxy_name='personal.ar'))
