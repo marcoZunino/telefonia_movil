@@ -56,8 +56,8 @@ Response:
 
 {
     Via : [
-        {protocol, uri, [received], [branch], ...},
-        {protocol, uri, [received], [branch], ...},
+        {protocol, uri, [port], [received], [branch], ...},
+        {protocol, uri, [port], [received], [branch], ...},
         ...
         ]
     Max-Forwards : (no aplica para responses)

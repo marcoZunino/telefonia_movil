@@ -27,8 +27,14 @@ def decode(msg):
                     via = re.split(r'[ ;]', key_value[1])
 
                     via_entry = {}
-                    via_entry["protocol"] = via[0]
-                    via_entry["uri"] = via[1]
+                    via_entry['protocol'] = via[0]
+                    
+                    if len(via[1].split(':')) == 2:
+                        via_entry['uri'] = via[1].split(':')[0]
+                        via_entry['port'] = via[1].split(':')[1]
+                    else:
+                        via_entry['uri'] = via[1]
+
                     for v in via[2:]:
                         v = v.split('=')
                         via_entry[v[0]] = v[1]
@@ -76,8 +82,9 @@ def check_fields(data):
 
 
 def add_received_IP(data, address):
-    data["Fields"]["Via"][0]["received"] = address
-    # agregar IP a la primera entrada de Via
+    if not "received" in data["Fields"]["Via"][0]:
+        data["Fields"]["Via"][0]['received'] = address
+        # agregar IP a la primera entrada de Via
 
 # poner IP en la uri del request
 def update_to_proxy(data, client_ip):
@@ -107,6 +114,9 @@ def encode(data):
         if key == 'Via':
             msg += encode_via(data["Fields"]["Via"])
 
+        elif key == 'Contact':
+            msg += key + ': <' + data["Fields"][key] + '>'
+
         else:
             msg += key + ': ' + data["Fields"][key]
         
@@ -124,39 +134,30 @@ def encode_via(via_array):
     msg = ""
     for v in via_array:
         msg += 'Via: '
+
+        msg += v['protocol'] + ' '
+        msg += v['uri']
+
+        if 'port' in v:
+            msg += ':' + v['port']
+        
+        msg += ';'
+
         for subkey in v:
-            if subkey == 'protocol':
-                msg += v["protocol"] + ' '
-            elif subkey == 'uri':
-                msg += v["uri"] + ';'
-            else:
+            
+            if subkey not in ['protocol', 'uri', 'port']:
                 msg += subkey + '=' + v[subkey] + ';'
+
         if msg[-1] == ';':
             msg = msg[:-1]
+
         msg += '\n'
+        
     return msg
 
 
     
-
-# msg = 'REGISTER sip:bob@biloxi.com SIP/2.0\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:alice@pc33.atlanta.com>\nContent-Type: application/sdp\nContent-Length: 142\r\n'
-
-# msg = 'REGISTER sip:registrar.claseTelefonia.com SIP/2.0\r\nVia: SIP/2.0/TCP 127.0.1.1:8080;branch=z9hG4bK12345678\r\nMax-Forwards: 70\r\nFrom: "Thomas" <sip:elProfe@claseTelefonia.com>;tag=77772\r\nTo: "Thomas" <sip:elProfe@claseTelefonia.com>\r\nCall-ID: a84b4c76e66710@127.0.1.1\r\nCSeq: 1 REGISTER\r\nContact: "Thomas" <sip:elProfe@127.0.1.1>\r\nExpires: 3600\r\nContent-Length: 0\r\n'
-
-# msg = 'SIP/2.0 200 OK\nVia: SIP/2.0/UDP server10.biloxi.com;branch=z9hG4bKnashds8;received=192.0.2.3\nTo: Bob <sip:bob@biloxi.com>;tag=a6c85cf\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:bob@192.0.2.4>\nContent-Type: application/sdp\nContent-Length: 131\r\n'
-
-# msg = "INVITE sip:bob@biloxi.com SIP/2.0\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nMax-Forwards: 70\nContact: <sip:alice@pc33.atlanta.com>\nContent-Type: application/pkcs7-mime; smime-type=enveloped-data;name=smime.p7m\nContent-Disposition: attachment; filename=smime.p7m;handling=required\r\n"
-
-
-# msg = "SIP/2.0 100 Trying\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8;received=192.0.2.1\nTo: Bob <sip:bob@biloxi.com>\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContent-Length: 0"
-
-
-# msg = "SIP/2.0 200 OK\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8\nTo: Bob <sip:bob@claro.uy>\nFrom: Bob <sip:bob@claro.uy>;tag=456248\nCall-ID: 843817637684230@998sdasdh09\nCSeq: 1826 REGISTER\nContent-Length: 0"
-
-# msg = "INVITE sip:bob@claro.uy SIP/2.0\nVia: SIP/2.0/UDP bobspc.biloxi.com;branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: bob@claro.uy <sip:bob@claro.uy>\nFrom: Bob <sip:bob@claro.uy>;tag=1928301774\nCall-ID: a84b4c76e66710@pc33.atlanta.com\nCSeq: 314159 INVITE\nContact: <sip:bob@192.168.1.7>\nContent-Type: application/sdp\nContent-Length: 142"
-
-# msg = "SIP/2.0 180 Ringing\nVia: SIP/2.0/UDP server10.biloxi.com;branch=z9hG4bK4b43c2ff8.1;received=192.0.2.3\nVia: SIP/2.0/UDP bigbox3.site3.atlanta.com;branch=z9hG4bK77ef4c2312983.1;received=192.0.2.2\nVia: SIP/2.0/UDP pc33.atlanta.com;branch=z9hG4bKnashds8;received=192.0.2.1\nTo: Bob <sip:bob@biloxi.com>;tag=a6c85cf\nFrom: Alice <sip:alice@atlanta.com>;tag=1928301774\nCall-ID: a84b4c76e66710\nContact: <sip:bob@192.0.2.4>\nCSeq: 314159 INVITE\nContent-Length: 0"
-
+# msg = ""
 
 # import json
 
@@ -164,15 +165,7 @@ def encode_via(via_array):
 # data = decode(msg)
 
 
-# print(check_fields(data))
-
-# add_via_entry(data, {
-#     "protocol": "SIP/2.0",
-#     "uri": "server10.biloxi.com",
-#     "branch": "z9hG4bK4b43c2ff8.1",
-#     })
-
-# add_received_IP(data, '192.168.10.10')
+# # print(check_fields(data))
 
 
 # print(json.dumps(data, indent=4))

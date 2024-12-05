@@ -33,6 +33,7 @@ print(f"Proxy {proxy_name} listening on {host} {ip_address} : {port}")
 add_dns_entry(proxy_name, ip_address, port)
 
 proxy_data = {
+    'hostname': host,
     'name': proxy_name,
     'ip': ip_address,
     'port': port
@@ -55,13 +56,9 @@ while True:
         msg = rx.decode('utf-8')
         # [:-2]   # decodificar y quitar \r\n
 
-        update_log('databases/log_proxy_' + proxy_name + '.txt', msg) # actualizar log
+        update_log('logs_proxy/log_' + proxy_name + '.txt', msg) # actualizar log
         # print(msg)
 
-        if msg == "Q":
-            print("salir")
-            client_socket.close()
-            break
 
         try:
             data = decode(msg)  # decodificar mensaje

@@ -1,9 +1,11 @@
 from datetime import datetime
 
+from functions.dns_manager import retrieve_all_proxys
+
 # LOCATION SERVICE FUNCTIONS ---------------------
 
 def ls_proxy(proxy_name):
-    return f'databases/location_service_{proxy_name}.txt'
+    return f'location_services/ls_{proxy_name}.txt'
 
 def add_user_to_sip_file(location_service, uri, contact, expires=3600):
 
@@ -115,6 +117,25 @@ def query_location_service(file_path, uri=None, username=None, proxy_name=None):
                     user_info = {}
 
     return user_info
+
+def search_port(data, proxy_data = None):
+
+    dest_port = None
+
+    try:
+        # buscar si es cliente
+        dest_port = query_location_service(ls_proxy(proxy_data["name"]), uri=data["Fields"]["Via"][0]['uri'])["port"]
+    except:
+        # buscar si es proxy
+        for p in retrieve_all_proxys():
+            if p["name"] in data["Fields"]["Via"][0]['uri']:
+                dest_port = p["address"][1]
+                break
+        
+    if not dest_port:
+        print("Destination port not found", data["Fields"]["Via"][0])
+    
+    return dest_port
 
 
 # LOGS

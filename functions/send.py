@@ -1,8 +1,8 @@
 import socket
 
 from functions.codec import add_via_entry, encode, encode_via, pop_via_entry, update_to_proxy
-from functions.read_write import ls_proxy, query_location_service
-from functions.dns_manager import retrieve_proxy_data
+from functions.read_write import ls_proxy, query_location_service, search_port
+from functions.dns_manager import retrieve_all_proxys, retrieve_proxy_data
 
 def send_message(host, port, message):
     # Create a socket object
@@ -34,11 +34,20 @@ response_codes = {
     603 : "Decline",
 }
 
-def send_response(code, data, addr):
+def send_response(code, data, addr, contact = None):
 
     print("sending response", code, addr)
 
-    message = f'SIP/2.0 {code} {response_codes[code]}\n{encode_via(data["Fields"]["Via"])}To: {data["Fields"]["To"]}\nFrom: {data["Fields"]["From"]}\nCall-ID: {data["Fields"]["Call-ID"]}\nCSeq: {data["Fields"]["CSeq"]}\nContent-Length: {data["Fields"]["Content-Length"]}\r\n'
+    content_length = 0
+    if code == 200:
+        content_length = data["Fields"]["Content-Length"]
+
+    message = f'SIP/2.0 {code} {response_codes[code]}\n{encode_via(data["Fields"]["Via"])}To: {data["Fields"]["To"]}\nFrom: {data["Fields"]["From"]}\nCall-ID: {data["Fields"]["Call-ID"]}'
+    
+    if contact:
+        message += f'\nContact: <{contact}>'
+    
+    message += f'\nCSeq: {data["Fields"]["CSeq"]}\nContent-Length: {content_length}\r\n'
 
     send_message(addr[0], addr[1], message)
 
@@ -69,10 +78,10 @@ def forward_message(proxy_data, data):
             print("Error forwarding message to client > ", e, dest_username)
             return
 
-        print("forwarding message directly to client in", client_ip)
+        print("forwarding message directly to client", dest_username, client_ip, client_port)
         update_to_proxy(data, client_ip)
         send_message(client_ip, client_port, encode(data))
-        # WAIT 180 RINGING
+        # WAIT 180 RINGING ?
         
     
     else:
@@ -84,17 +93,26 @@ def forward_message(proxy_data, data):
         
         print("forwarding message to", dest_proxy, dest_proxy_addr)
         send_message(dest_proxy_addr[0], dest_proxy_addr[1], encode(data))
-        # WAIT 100 TRYING
+        # WAIT 100 TRYING ?
 
 def forward_response(proxy_data, data):
     
     current_via = pop_via_entry(data)
 
     if current_via["received"] != proxy_data["ip"]:
+        print("response not for me:", current_via)
+        # SEND ERROR RESPONSE ?
+        return
+    
+    dest_ip = data["Fields"]["Via"][0]["received"]
+    dest_port = search_port(data, proxy_data=proxy_data)
+
+    if not dest_port:
+        # SEND ERROR RESPONSE ?
         return
 
-    print("forwarding response", data["Request"]["Response Code"], "to", data["Fields"]["From"])
-    send_message(data["Fields"]["Via"][0]["received"], 5060, encode(data))
+    print("forwarding response", data["Request"]["Response Code"], "to", data["Fields"]["Via"][0]["uri"])
+    send_message(dest_ip, dest_port, encode(data))
 
 def send_ack(data, proxy_data):
 
@@ -102,11 +120,11 @@ def send_ack(data, proxy_data):
     #     return
     
     if "Contact" not in data["Fields"]:
-        uri = data["Fields"]["To"].split(' ')[0]
-        dest = proxy_data
+        uri = data["Fields"]["To"].split(' ')[1]
+        dest = proxy_data # corregir proxy_data?
     else:
         uri = data["Fields"]["Contact"]
-        dest = (uri.split("@")[1], 5060)
+        dest = (data["Fields"]["Contact"].split("@")[1], 5060) # FIXME buscar port en LS
     
     data["Request"]["Method"] = "ACK"
     data["Request"].pop("Response Code")

@@ -8,25 +8,6 @@ from functions.state import State
 
 import threading
 
-# import subprocess
-
-proxy = ("", 8000)
-own_ip = socket.gethostbyname(socket.gethostname())
-user = "Bob"
-proxy_name = None
-
-STATE = State()
-
-# Launch client_listener.py after client_interface.py code is executed
-# try:
-#     result = subprocess.run(['python', 'client_listener.py'], check=True)
-#     print("client_listener.py executed successfully")
-# except subprocess.CalledProcessError as e:
-#     print("Failed to execute client_listener.py:", e)
-
-
-log = 'databases/log_client.txt'
-
 # Create a socket object
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -47,9 +28,19 @@ while not socket_ready:
         port += 1
 
 
-ip_address = socket.gethostbyname(host)
+own_ip = socket.gethostbyname(host)
 
-print(f"Server listening on {host} {ip_address} : {port}")
+print(f"Server listening on {host} {own_ip} : {port}")
+
+proxy = ("", 8000)
+proxy_name = None
+
+user_data = {
+    'hostname' : host,
+    'name' : "Bob",
+    'ip' : own_ip,
+    'port' : port
+}
 
 def manage_connection(client_socket, addr):
     while True:
@@ -62,7 +53,7 @@ def manage_connection(client_socket, addr):
         msg = rx.decode('utf-8')
         # [:-2]   # decodificar y quitar \r\n
 
-        update_log(log, msg) # actualizar log
+        update_log(f'logs_client/log_{user_data["name"]}.txt', msg) # actualizar log
 
         if msg == "Q":
             print("salir")
@@ -82,7 +73,7 @@ def manage_connection(client_socket, addr):
 
         add_received_IP(data, addr[0]) # agregar IP de origen
 
-        client_methods[data["Request"]["Method"]](data, state=STATE, proxy_data=proxy_data) # llamar funcion segun metodo
+        client_methods[data["Request"]["Method"]](data, state=STATE, user_data=user_data, proxy_data=proxy_data) # llamar funcion segun metodo
         break
 
 def handle_client(client_socket, addr):
@@ -104,6 +95,9 @@ connection_thread.start()
 
 commands = ['help', 'register', 'invite', 'proxy', 'user', 'user?', 'proxy?', 'exit']
 
+
+STATE = State()
+
 while True:
 
     command = input("> ")
@@ -114,7 +108,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name}:{port};branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user} <sip:{user.lower()}@{proxy_name}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user.lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
+            message = f"REGISTER sip:registrar.{proxy_name} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name}:{port};branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_name}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_name}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
             send_message(proxy[0], proxy[1], message)
                 
         case 'invite':
@@ -126,7 +120,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user} <sip:{user.lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user.lower()}@{host}.{proxy_name}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_name};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_name}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_name}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
             
             send_message(proxy[0], proxy[1], message)
             
@@ -170,10 +164,10 @@ while True:
                 print("User name cannot contain spaces")
                 continue
             if name:
-                user = name
+                user_data["name"] = name
 
         case 'user?':
-            print(f"User: {user}")
+            print(f"User: {user_data["name"]}")
 
         case 'proxy?':
             print(f"Proxy {proxy_name} address: {proxy[0]}:{proxy[1]}")
