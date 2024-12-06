@@ -60,7 +60,7 @@ while True:
         msg = rx.decode('utf-8')
         # [:-2]   # decodificar y quitar \r\n
 
-        update_log('logs_proxy/log_proxy_' + proxy_name + '.txt', msg) # actualizar log
+        update_log('logs_proxy/log_' + proxy_name + '.txt', msg) # actualizar log
         # print(msg)
 
 

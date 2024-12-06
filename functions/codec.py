@@ -155,19 +155,10 @@ def encode_via(via_array):
         
     return msg
 
-
     
 # msg = ""
-
 # import json
-
-
 # data = decode(msg)
-
-
 # # print(check_fields(data))
-
-
 # print(json.dumps(data, indent=4))
-
 # print(encode(data))

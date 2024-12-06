@@ -3,7 +3,7 @@ from functions.codec import decode, check_fields, add_received_IP
 from functions.methods import client_methods
 from functions.read_write import update_log
 from functions.dns_manager import retrieve_proxy_data
-from functions.send import send_message, send_response
+from functions.send import generate_branch, send_bye, send_cancel, send_message, send_response
 from functions.state import State
 
 import threading
@@ -98,7 +98,7 @@ connection_thread.daemon = True
 connection_thread.start()
 
 
-commands = ['help', 'register', 'invite', 'proxy', 'user', 'state', 'user?', 'proxy?', 'exit']
+commands = ['help', 'register', 'invite', 'proxy', 'user', 'state', 'reset state', 'last data', 'dest user', 'user?', 'proxy?', 'exit']
 
 STATE = State()
 
@@ -112,7 +112,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"REGISTER sip:registrar.{proxy_data["name"]} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]}:{port};branch=z9hG4bKnashds7\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
+            message = f"REGISTER sip:registrar.{proxy_data["name"]} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]}:{port};branch={generate_branch()}\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=456248\nCall-ID: 843817637684230\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
             send_message(proxy_data["ip"], proxy_data["port"], message)
                 
         case 'invite':
@@ -124,15 +124,24 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]};branch=z9hG4bK776asdhds\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_data["name"]}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]};branch={generate_branch()}\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=1928301774\nCall-ID: a84b4c76e66710\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_data["name"]}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
             
             send_message(proxy_data["ip"], proxy_data["port"], message)
             
+            STATE.save_data(decode(message))
             STATE.update('inviting')
 
         case 'state':
             print(f"Current state: {STATE.current_state}")
+        
+        case 'reset state':
+            STATE = State()
 
+        case 'last data':
+            print(f"Last saved data: {STATE.last_data}")
+        
+        case 'dest user':
+            print(f"Destination user info: {STATE.dest_user_info}")
         
         case 'proxy':
 
@@ -172,18 +181,25 @@ while True:
 
         case 'q':
             match STATE.current_state:
-                case 'ringing_back':
-                    STATE.update('idle')
-                    print("Call canceled")
+
+                case 'ringing_back': # cancelar antes de que contesten
                     # SEND CANCEL REQUEST
-                case 'ringing':
-                    STATE.update('idle')
-                    # SEND RESPONSE 603 DECLINE
+                    send_cancel(proxy_data, STATE.last_data)
+                    STATE.reset()
+                    print("Call canceled")
+
+                case 'ringing': # rechazar llamada
+                    # send response 603 Decline
+                    send_response(603, STATE.last_data, (proxy_data["ip"], proxy_data["port"]))
+                    STATE.reset()
                     print("Call declined")
+                    
                 case 'talking':
-                    STATE.update('idle')
-                    # SEND BYE REQUEST
+                    # send BYE request
+                    send_bye(STATE.last_data, STATE.dest_user_info)
+                    STATE.reset()
                     print("Call terminated")
+
                 case _:
                     print("Unknown command")
         

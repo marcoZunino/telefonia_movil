@@ -79,7 +79,6 @@ def retrieve_proxy_data(name):
 
     return data
 
-
 def retrieve_all_proxys():
     # Database connection parameters
 
@@ -121,3 +120,4 @@ def retrieve_all_proxys():
         }
 
     return data
+

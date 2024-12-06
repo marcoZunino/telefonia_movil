@@ -3,6 +3,11 @@ import socket
 from functions.codec import add_via_entry, encode, encode_via, pop_via_entry, update_to_proxy
 from functions.read_write import ls_proxy, query_location_service, search_port
 from functions.dns_manager import retrieve_all_proxys, retrieve_proxy_data
+import random
+import string
+
+
+# sending ----------------
 
 def send_message(host, port, message):
     # Create a socket object
@@ -24,32 +29,54 @@ def send_message(host, port, message):
         # Close the socket connection
         client_socket.close()
 
-response_codes = {
-    100 : "Trying",
-    180 : "Ringing",
-    200 : "OK",
-    400 : "Bad Request",
-    404 : "Not Found",
-    483 : "Too Many Hops",
-    603 : "Decline",
-}
+def send_ack(data, dest_user_info):
 
-def send_response(code, data, addr, contact = None):
+    data["Request"]["Method"] = "ACK"
+    data["Request"].pop("Response Code")
+    data["Request"].pop("Response Description")
+    data["Request"]["uri"] = dest_user_info["uri"]
 
-    print("sending response", code, addr)
+    data["Fields"]["Max-Forwards"] = "70"
+    data["Fields"]["Content-Length"] = "0"
+    data["Fields"]["CSeq"] = "314159 ACK"
 
-    content_length = 0
-    if code == 200:
-        content_length = data["Fields"]["Content-Length"]
+    data["Fields"].pop("Contact", None)
+    data["Fields"].pop("Content-Type", None)
+    data["Fields"]["Via"][0].pop("received", None)
 
-    message = f'SIP/2.0 {code} {response_codes[code]}\n{encode_via(data["Fields"]["Via"])}To: {data["Fields"]["To"]}\nFrom: {data["Fields"]["From"]}\nCall-ID: {data["Fields"]["Call-ID"]}'
-    
-    if contact:
-        message += f'\nContact: <{contact}>'
-    
-    message += f'\nCSeq: {data["Fields"]["CSeq"]}\nContent-Length: {content_length}\r\n'
+    send_message(dest_user_info["ip"], dest_user_info["port"], encode(data))
 
-    send_message(addr[0], addr[1], message)
+def send_cancel(proxy_data, data):
+
+    print("sending cancel to", data["Fields"]["To"].split(' ')[0])
+
+    data["Request"]["Method"] = "CANCEL"
+    data["Fields"]["CSeq"] = f'{data["Fields"]["CSeq"].split(' ')[0]} CANCEL'
+    data["Fields"]["Max-Forwards"] = "70"
+    data["Fields"]["Content-Length"] = "0"
+    data["Fields"].pop("Content-Type", None)
+
+    send_message(proxy_data['ip'], proxy_data['port'], encode(data))
+
+def send_bye(data, dest_user_info):
+
+    data["Request"]["Method"] = "BYE"
+    data["Request"].pop("Response Code", None)
+    data["Request"].pop("Response Description", None)
+    data["Request"]["uri"] = dest_user_info["uri"]
+
+    data["Fields"]["Max-Forwards"] = "70"
+    data["Fields"]["Content-Length"] = "0"
+    data["Fields"]["CSeq"] = "231 BYE"
+
+    data["Fields"].pop("Contact", None)
+    data["Fields"].pop("Content-Type", None)
+    data["Fields"]["Via"][0].pop("received", None)
+
+    send_message(dest_user_info["ip"], dest_user_info["port"], encode(data))
+
+
+# forwarding ----------------
 
 def forward_message(proxy_data, data):
 
@@ -60,9 +87,10 @@ def forward_message(proxy_data, data):
     if int(data["Fields"]["Max-Forwards"]) == 0:
         print("Max-Forwards reached")
         # SEND ERROR RESPONSE
+        send_response(483, data, (data["Fields"]["Via"][0]["received"], search_port(data, proxy_data=proxy_data)))
         return
     
-    add_via_entry(data, {"protocol": "SIP/2.0/UDP", "uri": proxy_data["name"]}) # AGREGAR BRANCH
+    add_via_entry(data, {"protocol": "SIP/2.0/UDP", "uri": proxy_data["name"], "branch": generate_branch()})
 
     dest_proxy = data["Request"]["uri"].split('@')[1]
     dest_username = data["Request"]["uri"].split('@')[0].strip('sip:')
@@ -81,9 +109,7 @@ def forward_message(proxy_data, data):
         print("forwarding message directly to client", dest_username, client_ip, client_port)
         update_to_proxy(data, client_ip)
         send_message(client_ip, client_port, encode(data))
-        # WAIT 180 RINGING ?
         
-    
     else:
         try:
             dest_proxy_addr = retrieve_proxy_data(dest_proxy)
@@ -114,40 +140,72 @@ def forward_response(proxy_data, data):
     print("forwarding response", data["Request"]["Response Code"], "to", data["Fields"]["Via"][0]["uri"])
     send_message(dest_ip, dest_port, encode(data))
 
-def send_ack(data, proxy_data):
+# responses ----------------
 
-    # if data["Request"]["Method"] != "Response" or data["Request"]["Response Code"] != 200:
-    #     return
+response_codes = {
+    100 : "Trying",
+    180 : "Ringing",
+    200 : "OK",
+    400 : "Bad_Request",
+    404 : "Not_Found",
+    483 : "Too_Many_Hops",
+    486 : "Busy_Here",
+    603 : "Decline",
+}
+
+def send_response(code, data, addr, contact = None):
+
+    print("sending response", code, addr)
+
+    content_length = 0
+    if code == 200:
+        content_length = data["Fields"]["Content-Length"]
+
+    message = f'SIP/2.0 {code} {response_codes[code]}\n{encode_via(data["Fields"]["Via"])}To: {data["Fields"]["To"]}\nFrom: {data["Fields"]["From"]}\nCall-ID: {data["Fields"]["Call-ID"]}'
     
+    if contact:
+        message += f'\nContact: <{contact}>'
+    
+    message += f'\nCSeq: {data["Fields"]["CSeq"]}\nContent-Length: {content_length}\r\n'
+
+    send_message(addr[0], addr[1], message)
+
+
+# aux functions ----------------
+
+def get_dest_user_info(data, proxy_data):
+
     if "Contact" in data["Fields"]:
 
         uri = data["Fields"]["Contact"]
 
         try:
-            dest_port = search_port(data, proxy_data = {
+            port = search_port(data, proxy_data = {
                     "name" : data["Fields"]["To"].split(' ')[1].strip('<>').split('@')[1]
                     }, username=data["Fields"]["To"].split(' ')[0].lower())
         except:
-            dest_port = 5060
+            port = 5060
 
-        dest = (data["Fields"]["Contact"].split("@")[1], dest_port)
+        ip = data["Fields"]["Contact"].split("@")[1]
         
     else:
+
         uri = data["Fields"]["To"].split(' ')[1]
-        dest = (proxy_data["ip"], proxy_data["port"])
-    
-    data["Request"]["Method"] = "ACK"
-    data["Request"].pop("Response Code")
-    data["Request"].pop("Response Description")
-    data["Request"]["uri"] = uri
+        ip = proxy_data["ip"]
+        port = proxy_data["port"]
 
-    data["Fields"]["Max-Forwards"] = "70"
-    data["Fields"]["Content-Length"] = "0"
-    data["Fields"]["CSeq"] = "314159 ACK"
+    return {
+        'uri' : uri,
+        'ip' : ip,
+        'port' : port,
+    }
 
-    data["Fields"].pop("Contact", None)
-    data["Fields"].pop("Content-Type", None)
-    data["Fields"]["Via"][0].pop("received", None)
+def generate_branch():
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=14))
 
-    send_message(dest[0], dest[1], encode(data))
+
+
+
+
+
 

@@ -22,7 +22,6 @@ def waiting_print(text, timeout=None, state=None):
     # # Print the final text without clearing it
     # sys.stdout.write(f"\r{text}\n")
 
-
 def printing(text, interval):
     for i in range(len(text) + 1):
             # Print the text partially
