@@ -4,6 +4,7 @@ class State():
         self.current_state = 'idle'
         self.last_data = None
         self.dest_user_info = None
+        self.user_registered = False
 
     def update(self, new_state = None):
         self.current_state = new_state

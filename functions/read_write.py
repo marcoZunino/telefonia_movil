@@ -156,4 +156,3 @@ def update_log(log_file, msg):
     with open(log_file, 'a') as log_file:
         log_file.write(f'{datetime.now()}\n{msg}\n\n')    # guardar mensaje en log
 
-

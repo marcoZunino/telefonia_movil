@@ -5,7 +5,7 @@ dns_params = {
         'dbname': 'sip_proxy_dns',
         'user': 'postgres',
         'password': 'postgres',
-        'host': '192.168.1.7',
+        'host': '10.252.62.239',
         'port': '5434'
     }
 
@@ -66,8 +66,8 @@ def retrieve_proxy_data(name):
         cursor.execute(select_query, (name,))
         data = cursor.fetchone()
 
-    except Exception as error:
-        print("Failed to retrieve data from the DNS proxy table", error)
+    except:
+        print("Failed to retrieve data from the DNS proxy table")
         return None
 
     finally:

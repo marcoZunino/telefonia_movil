@@ -1,7 +1,7 @@
 import time
 
 from functions.dynamic_prints import waiting_print
-from functions.send import forward_message, forward_response, get_dest_user_info, send_ack, send_response
+from functions.send import forward_message, forward_response, get_dest_user_info, manage_result, send_ack, send_response
 from functions.read_write import add_user_to_sip_file, ls_proxy, search_port
 from functions.state import State
 
@@ -39,29 +39,35 @@ def invite(data, proxy_data = None):
     print("invite...", data["Fields"]["From"], 'to', data["Fields"]["To"])
 
     port = search_port(data, proxy_data=proxy_data)
-        
     send_response(100, data, (data["Fields"]["Via"][0]["received"], port))
 
-    forward_message(proxy_data, data)
-
+    result = forward_message(proxy_data, data)
+    print("result for forward_message is:", result)
+    manage_result(result, data, proxy_data) # send possible error response
+    
 def cancel(data, proxy_data = None):
     # forward message to destination
     print("cancel...")
-    forward_message(proxy_data, data)
+    result = forward_message(proxy_data, data)
+    manage_result(result, data, proxy_data)
 
 def ack(data, proxy_data = None):
     # forward message to destination
     print("ack...")
-    forward_message(proxy_data, data)
+    result = forward_message(proxy_data, data)
+    manage_result(result, data, proxy_data)
     
 def bye(data, proxy_data = None):
     # forward message to destination
     print("bye...")
-    forward_message(proxy_data, data)
+    result = forward_message(proxy_data, data)
+    manage_result(result, data, proxy_data)
 
 def response(data, proxy_data = None):
 
     # print("response...", data["Request"]["Response Code"], data["Request"]["Response Description"])
+
+    result = 200
 
     match int(data["Request"]["Response Code"]):
 
@@ -70,36 +76,37 @@ def response(data, proxy_data = None):
 
         case 180:
             print("Ringing")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
 
         case 200:
             print("OK")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
 
         case 400:
             print("Bad Request")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
 
         case 404:
             print("Not Found")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
 
         case 483:
             print("Too Many Hops")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
         
         case 486:
             print("Busy Here")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
 
         case 603:
             print("Decline")
-            forward_response(proxy_data, data)
+            result = forward_response(proxy_data, data)
 
         case _:
             print(data["Request"]["Response Description"])
 
-    return
+    manage_result(result, data, proxy_data)
+
 
 methods = {}
 methods["REGISTER"] = register
@@ -190,7 +197,10 @@ def client_response(data, state = State(), user_data = None, proxy_data = None):
             
         case 200:
             print("OK")
-            # state.update()
+
+            if state.current_state == 'idle':
+                state.user_registered = True
+
             if state.current_state == "ringing_back":
                 
                 state.update("talking")
@@ -206,9 +216,11 @@ def client_response(data, state = State(), user_data = None, proxy_data = None):
 
         case 400:
             print("Bad Request")
+            state.reset()
 
         case 404:
             print("Not Found")
+            state.reset()
 
         case 483:
             print("Too Many Hops")
@@ -228,6 +240,7 @@ def client_response(data, state = State(), user_data = None, proxy_data = None):
 
         case _:
             print(data["Request"]["Response Description"])
+            state.reset()
 
     return
 

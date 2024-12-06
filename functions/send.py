@@ -10,6 +10,9 @@ import string
 # sending ----------------
 
 def send_message(host, port, message):
+
+    result = 200
+
     # Create a socket object
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     
@@ -22,12 +25,14 @@ def send_message(host, port, message):
         
         print(f"Message sent to {host}:{port}")
     
-    except Exception as e:
-        print(f"Failed to send message: {e}")
+    except:
+        print(f"Failed to send message")
+        result = 404
     
     finally:
         # Close the socket connection
         client_socket.close()
+        return result
 
 def send_ack(data, dest_user_info):
 
@@ -44,7 +49,7 @@ def send_ack(data, dest_user_info):
     data["Fields"].pop("Content-Type", None)
     data["Fields"]["Via"][0].pop("received", None)
 
-    send_message(dest_user_info["ip"], dest_user_info["port"], encode(data))
+    return send_message(dest_user_info["ip"], dest_user_info["port"], encode(data))
 
 def send_cancel(proxy_data, data):
 
@@ -56,7 +61,7 @@ def send_cancel(proxy_data, data):
     data["Fields"]["Content-Length"] = "0"
     data["Fields"].pop("Content-Type", None)
 
-    send_message(proxy_data['ip'], proxy_data['port'], encode(data))
+    return send_message(proxy_data['ip'], proxy_data['port'], encode(data))
 
 def send_bye(data, dest_user_info):
 
@@ -73,12 +78,14 @@ def send_bye(data, dest_user_info):
     data["Fields"].pop("Content-Type", None)
     data["Fields"]["Via"][0].pop("received", None)
 
-    send_message(dest_user_info["ip"], dest_user_info["port"], encode(data))
+    return send_message(dest_user_info["ip"], dest_user_info["port"], encode(data))
 
 
 # forwarding ----------------
 
 def forward_message(proxy_data, data):
+
+    result = 200
 
     # update max-forwards
     
@@ -86,9 +93,7 @@ def forward_message(proxy_data, data):
 
     if int(data["Fields"]["Max-Forwards"]) == 0:
         print("Max-Forwards reached")
-        # SEND ERROR RESPONSE
-        send_response(483, data, (data["Fields"]["Via"][0]["received"], search_port(data, proxy_data=proxy_data)))
-        return
+        return 483  # send 483 Too Many Hops
     
     add_via_entry(data, {"protocol": "SIP/2.0/UDP", "uri": proxy_data["name"], "branch": generate_branch()})
 
@@ -102,43 +107,44 @@ def forward_message(proxy_data, data):
             client_ip = client_data["IP"]
             client_port = int(client_data["port"])
 
-        except Exception as e:
-            print("Error forwarding message to client > ", e, dest_username)
-            return
+        except:
+            print("Error forwarding message to client > ", dest_username)
+            return 404
 
         print("forwarding message directly to client", dest_username, client_ip, client_port)
         update_to_proxy(data, client_ip)
-        send_message(client_ip, client_port, encode(data))
+        result = send_message(client_ip, client_port, encode(data))
         
     else:
         try:
             dest_proxy_addr = retrieve_proxy_data(dest_proxy)
-        except Exception as e:
-            print("Error forwarding message", e)
-            return
+        except:
+            print("Error forwarding message to other proxy", dest_proxy)
+            return 404
         
         print("forwarding message to", dest_proxy, dest_proxy_addr)
-        send_message(dest_proxy_addr[0], dest_proxy_addr[1], encode(data))
-        # WAIT 100 TRYING ?
+        result = send_message(dest_proxy_addr[0], dest_proxy_addr[1], encode(data))
+
+    return result
 
 def forward_response(proxy_data, data):
-    
-    current_via = pop_via_entry(data)
 
-    if current_via["received"] != proxy_data["ip"]:
-        print("response not for me:", current_via)
-        # SEND ERROR RESPONSE ?
-        return
+    if len(data["Fields"]["Via"]) > 1:
+
+        current_via = pop_via_entry(data)
+
+        if current_via["received"] != proxy_data["ip"]:
+            print("response not for me:", current_via)
+            return 404
     
     dest_ip = data["Fields"]["Via"][0]["received"]
     dest_port = search_port(data, proxy_data=proxy_data)
 
     if not dest_port:
-        # SEND ERROR RESPONSE ?
-        return
+        return 404
 
     print("forwarding response", data["Request"]["Response Code"], "to", data["Fields"]["Via"][0]["uri"])
-    send_message(dest_ip, dest_port, encode(data))
+    return send_message(dest_ip, dest_port, encode(data))
 
 # responses ----------------
 
@@ -169,6 +175,14 @@ def send_response(code, data, addr, contact = None):
     message += f'\nCSeq: {data["Fields"]["CSeq"]}\nContent-Length: {content_length}\r\n'
 
     send_message(addr[0], addr[1], message)
+
+def manage_result(result, data, proxy_data):
+    
+    if result == 200:
+            pass
+    else:
+        send_response(result, data, (data["Fields"]["Via"][0]["received"], search_port(data, proxy_data=proxy_data)))
+        # send error response
 
 
 # aux functions ----------------
