@@ -59,7 +59,7 @@ def decode(msg):
     #     print(d, ">", data[d])
 
 def correct_msg(msg):
-    return msg.replace('\r\n\t', '').replace('\n\t', '').replace('\n    ', '').replace(' branch', 'branch')
+    return msg.replace('\r\n\t', '').replace('\n\t', '').replace('\n    ', '').replace('; ', ';')
 
 
 # decode message as request or response

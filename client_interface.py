@@ -112,7 +112,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"REGISTER sip:registrar.{proxy_data["name"]} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]}:{port};branch={generate_branch()}\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=456248\nCall-ID: {generate_branch()}\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
+            message = f"REGISTER sip:registrar.{proxy_data["name"]} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]}:{port};branch={generate_branch()}\nMax-Forwards: 70\nTo: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag={generate_branch()}\nCall-ID: {generate_branch()}\nCSeq: 1826 REGISTER\nContact: <sip:{user_data["name"].lower()}@{own_ip}>\nExpires: 7200\nContent-Length: 0\r\n"
             send_message(proxy_data["ip"], proxy_data["port"], message)
                 
         case 'invite':
@@ -129,7 +129,7 @@ while True:
                 print("Please specify a proxy (command 'proxy')")
                 continue
             # create and encode message
-            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]};branch={generate_branch()}\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag=1928301774\nCall-ID: {generate_branch()}\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_data["name"]}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
+            message = f"INVITE sip:{user_to_invite} SIP/2.0\nVia: SIP/2.0/UDP {host}.{proxy_data["name"]};branch={generate_branch()}\nMax-Forwards: 70\nTo: {user_to_invite.split('@')[0]} <sip:{user_to_invite}>\nFrom: {user_data["name"]} <sip:{user_data["name"].lower()}@{proxy_data["name"]}>;tag={generate_branch()}\nCall-ID: {generate_branch()}\nCSeq: 314159 INVITE\nContact: <sip:{user_data["name"].lower()}@{host}.{proxy_data["name"]}>\nContent-Type: application/sdp\nContent-Length: 142\r\n"
             
             send_message(proxy_data["ip"], proxy_data["port"], message)
             

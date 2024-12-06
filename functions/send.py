@@ -129,13 +129,15 @@ def forward_message(proxy_data, data):
 
 def forward_response(proxy_data, data):
 
-    if len(data["Fields"]["Via"]) > 1:
+    if len(data["Fields"]["Via"]) == 1:
+        print("response has only one via")
+        return 200
 
-        current_via = pop_via_entry(data)
+    current_via = pop_via_entry(data)
 
-        if current_via["received"] != proxy_data["ip"]:
-            print("response not for me:", current_via)
-            return 404
+    if current_via["received"] != proxy_data["ip"]:
+        print("response not for me:", current_via)
+        return 404
     
     dest_ip = data["Fields"]["Via"][0]["received"]
     dest_port = search_port(data, proxy_data=proxy_data)
